@@ -2,8 +2,10 @@ package com.dev001.identify.service.impl;
 
 import com.dev001.identify.dto.request.UserCreationRequest;
 import com.dev001.identify.dto.request.UserUpdateRequest;
+import com.dev001.identify.dto.response.UserResponse;
 import com.dev001.identify.entity.user.User;
 import com.dev001.identify.exception.AppException;
+import com.dev001.identify.mapper.UserMapper;
 import com.dev001.identify.repository.UserRepository;
 import com.dev001.identify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,41 +22,37 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
-    public User createUser(UserCreationRequest request) {
-        User user = new User();
-        if(userRepository.existsByUserName(request.getUsername())) {
+    public UserResponse createUser(UserCreationRequest request) {
+
+        if(userRepository.existsByUserName(request.getUserName())) {
             throw new AppException(USER_EXISTED);
         }
-
-        user.setUserName(request.getUsername());
-        user.setPassWord(request.getPassword());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setDob(request.getDob());
-
-        return userRepository.save(user);
+        User user = userMapper.toUser(request);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userMapper.toUserResponse(userRepository.findAll());
     }
 
     @Override
-    public User getUserDetail(String id) {
-        return userRepository.findById(id)
+    public UserResponse getUserDetail(String id) {
+
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(USER_NOT_FOUND));
+        return userMapper.toUserResponse(user);
     }
 
     @Override
-    public User updateUser(String id, UserUpdateRequest request) {
-        User user = getUserDetail(id);
-        user.setPassWord(request.getPassword());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setDob(request.getDob());
-        return userRepository.save(user);
+    public UserResponse updateUser(String id, UserUpdateRequest request) {
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(USER_NOT_FOUND));
+        userMapper.updateUser(user, request);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
     @Override
