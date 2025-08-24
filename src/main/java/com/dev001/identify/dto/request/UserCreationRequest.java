@@ -8,9 +8,9 @@ import java.time.LocalDate;
 @Data
 public class UserCreationRequest {
 
-    @Size(min = 8, max = 20, message = "Username must be between 8 and 20 characters")
+    @Size(min = 8, max = 20, message = "USERNAME_INVALID")
     private String username;
-    @Size(min = 8, max = 16, message = "Password must be between 8 and 16 characters")
+    @Size(min = 8, max = 16, message = "PASSWORD_INVALID")
     private String password;
     private String firstName;
     private String lastName;

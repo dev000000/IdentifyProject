@@ -2,6 +2,7 @@ package com.dev001.identify.controller;
 
 import com.dev001.identify.dto.request.UserCreationRequest;
 import com.dev001.identify.dto.request.UserUpdateRequest;
+import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.entity.user.User;
 import com.dev001.identify.service.UserService;
 import jakarta.validation.Valid;
@@ -22,8 +23,11 @@ public class UserController {
         return userService.getAllUsers();
     }
     @PostMapping
-    public User createUser(@RequestBody @Valid UserCreationRequest request) {
-        return userService.createUser(request);
+    public ApiResponse<User> createUser(@RequestBody @Valid UserCreationRequest request) {
+        ApiResponse<User> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(1000);
+        apiResponse.setData(userService.createUser(request));
+        return apiResponse;
     }
     @GetMapping("/{id}")
     public User getUser(@PathVariable String id) {
