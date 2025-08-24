@@ -9,6 +9,8 @@ import com.dev001.identify.mapper.UserMapper;
 import com.dev001.identify.repository.UserRepository;
 import com.dev001.identify.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +34,9 @@ public class UserServiceImpl implements UserService {
             throw new AppException(USER_EXISTED);
         }
         User user = userMapper.toUser(request);
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        String hashedPassword = passwordEncoder.encode(request.getPassWord());
+        user.setPassWord(hashedPassword);
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
