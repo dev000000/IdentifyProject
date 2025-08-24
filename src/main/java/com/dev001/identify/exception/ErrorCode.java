@@ -13,9 +13,6 @@ public enum ErrorCode {
     USERNAME_INVALID(1003, "Username must be between 8 and 20 characters"),
     PASSWORD_INVALID(1004, "Password must be between 8 and 16 characters");
 
-
-
-
     private int code;
     private String message;
 
