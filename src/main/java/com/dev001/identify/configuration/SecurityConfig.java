@@ -1,5 +1,6 @@
 package com.dev001.identify.configuration;
 
+import com.dev001.identify.enums.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(HttpMethod.POST, PUBLIC_URLS).permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/users").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated()
                 );
         http
