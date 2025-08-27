@@ -16,6 +16,7 @@ public interface UserService {
     UserResponse getUserDetail(String id);
     UserResponse updateUser(String id, UserUpdateRequest request);
     void deleteUser(String id);
+    UserResponse getMyProfile();
 
 
 
