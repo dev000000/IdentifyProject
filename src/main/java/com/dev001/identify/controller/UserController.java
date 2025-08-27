@@ -27,9 +27,9 @@ public class UserController {
     public ApiResponse<List<UserResponse>> getUsers() {
 
         // SecurityContextHolder chua thong tin ve user dang nhap hien tai
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("Username: {}", authentication.getName());
-        authentication.getAuthorities().forEach(authority -> log.info("Authority: {}", authority.getAuthority()));
+//        var authentication = SecurityContextHolder.getContext().getAuthentication();
+//        log.info("Username: {}", authentication.getName());
+//        authentication.getAuthorities().forEach(authority -> log.info("Authority: {}", authority.getAuthority()));
 
         return ApiResponse.<List<UserResponse>>builder()
                 .code(1000)
