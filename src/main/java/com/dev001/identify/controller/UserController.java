@@ -50,6 +50,13 @@ public class UserController {
                 .data(userService.getUserDetail(id))
                 .build();
     }
+    @GetMapping("/my-profile")
+    public ApiResponse<UserResponse> getMyProfile() {
+        return ApiResponse.<UserResponse>builder()
+                .code(1000)
+                .data(userService.getMyProfile())
+                .build();
+    }
     @PutMapping("/{id}")
     public ApiResponse<UserResponse> updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()

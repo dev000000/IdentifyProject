@@ -9,7 +9,14 @@ import com.dev001.identify.exception.AppException;
 import com.dev001.identify.mapper.UserMapper;
 import com.dev001.identify.repository.UserRepository;
 import com.dev001.identify.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +31,7 @@ import static com.dev001.identify.exception.ErrorCode.USER_NOT_FOUND;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private UserRepository userRepository;
 
@@ -46,20 +54,31 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public List<UserResponse> getAllUsers() {
         return userMapper.toUserResponse(userRepository.findAll());
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getUserDetail(String id) {
-
         User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND));
+        return userMapper.toUserResponse(user);
+    }
+    @Override
+    @PostAuthorize("returnObject.userName == authentication.name")
+    public UserResponse getMyProfile() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        User user = userRepository.findByUserName(name)
                 .orElseThrow(() -> new AppException(USER_NOT_FOUND));
         return userMapper.toUserResponse(user);
     }
 
     @Override
+
     public UserResponse updateUser(String id, UserUpdateRequest request) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(USER_NOT_FOUND));
         userMapper.updateUser(user, request);

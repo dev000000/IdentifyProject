@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,6 +22,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_URLS = { "/api/v1/users", "/api/v1/auth/**" };
 
@@ -29,20 +31,20 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(request ->
-                        request.requestMatchers(HttpMethod.POST, PUBLIC_URLS).permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole(Role.ADMIN.name())
-                        .anyRequest().authenticated()
-                );
-        http
-                .oauth2ResourceServer(oauth2 ->
-                    oauth2.jwt(jwtConfigurer ->
-                            jwtConfigurer
-                                    .decoder(jwtDecoder())
-                                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                    )
-                );
+
+        //1. cau hinh quyen truy cap cho tung endpoint
+        http.authorizeHttpRequests(request -> request
+                .requestMatchers(HttpMethod.POST, PUBLIC_URLS).permitAll()
+//                .requestMatchers(HttpMethod.GET, "/api/v1/users").hasRole(Role.ADMIN.name())
+                .anyRequest().authenticated()
+        );
+        //2. cau hinh resource server de validate JWT
+        http.oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                        .decoder(jwtDecoder())
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
+        );
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
