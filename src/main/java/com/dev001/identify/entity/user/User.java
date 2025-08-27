@@ -1,26 +1,32 @@
 package com.dev001.identify.entity.user;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Data
 @Table(name = "users")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
 
     @GeneratedValue(strategy = GenerationType.UUID)
     @Id
-    private String id;
+    String id;
     @Column(name = "user_name")
-    private String userName;
+    String userName;
     @Column(name = "pass_word")
-    private String passWord;
+    String passWord;
     @Column(name = "first_name")
-    private String firstName;
+    String firstName;
     @Column(name = "last_name")
-    private String lastName;
-    private LocalDate dob;
+    String lastName;
+    LocalDate dob;
+    Set<String> roles;
 
 }
