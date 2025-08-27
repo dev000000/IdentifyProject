@@ -7,11 +7,15 @@ import com.dev001.identify.dto.response.UserResponse;
 import com.dev001.identify.entity.user.User;
 import com.dev001.identify.service.UserService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -21,6 +25,12 @@ public class UserController {
 
     @GetMapping
     public ApiResponse<List<UserResponse>> getUsers() {
+
+        // SecurityContextHolder chua thong tin ve user dang nhap hien tai
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("Username: {}", authentication.getName());
+        authentication.getAuthorities().forEach(authority -> log.info("Authority: {}", authority.getAuthority()));
+
         return ApiResponse.<List<UserResponse>>builder()
                 .code(1000)
                 .data(userService.getAllUsers())

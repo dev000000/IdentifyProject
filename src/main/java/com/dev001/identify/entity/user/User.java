@@ -1,15 +1,17 @@
 package com.dev001.identify.entity.user;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Data
 @Table(name = "users")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
 
@@ -25,5 +27,6 @@ public class User {
     @Column(name = "last_name")
     String lastName;
     LocalDate dob;
+    Set<String> roles;
 
 }
