@@ -4,6 +4,7 @@ import com.dev001.identify.dto.request.UserCreationRequest;
 import com.dev001.identify.dto.request.UserUpdateRequest;
 import com.dev001.identify.dto.response.UserResponse;
 import com.dev001.identify.entity.user.User;
+import com.dev001.identify.enums.Role;
 import com.dev001.identify.exception.AppException;
 import com.dev001.identify.mapper.UserMapper;
 import com.dev001.identify.repository.UserRepository;
@@ -13,7 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.dev001.identify.exception.ErrorCode.USER_EXISTED;
 import static com.dev001.identify.exception.ErrorCode.USER_NOT_FOUND;
@@ -36,7 +39,10 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toUser(request);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         String hashedPassword = passwordEncoder.encode(request.getPassWord());
+        Set<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
         user.setPassWord(hashedPassword);
+        user.setRoles(roles);
         return userMapper.toUserResponse(userRepository.save(user));
     }
 

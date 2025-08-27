@@ -20,11 +20,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.StringJoiner;
 
 import static com.dev001.identify.exception.ErrorCode.USER_NOT_FOUND;
 
@@ -34,18 +36,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder bCryptPasswordEncoder;
+
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         User user = userRepository.findByUserName(request.getUserName()).orElseThrow( () -> new AppException(USER_NOT_FOUND));
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        boolean authenticated = passwordEncoder.matches(request.getPassWord(), user.getPassWord());
+        boolean authenticated = bCryptPasswordEncoder.matches(request.getPassWord(), user.getPassWord());
         if(!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         System.out.println(request.getUserName());
-        String token = generateToken(request.getUserName());
+        String token = generateToken(user);
         return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(authenticated)
@@ -53,14 +57,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public String generateToken(String userName) {
+    public String generateToken(User user) {
+
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(userName)
+                .subject(user.getUserName())
                 .issuer("https://github.com/DEV00000001") // don vi phat hanh token
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(7, ChronoUnit.HOURS).toEpochMilli()))
-                .claim("role", "USER")
+                .claim("scope", buildScope(user))
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(jwsHeader, payload);
@@ -84,6 +89,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return IntrospectResponse.builder()
                 .valid(verified && expirationTime.after(new Date()))
                 .build();
+    }
+
+    @Override
+    public String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if(!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(stringJoiner::add);
+        }
+        return stringJoiner.toString();
     }
 
 }
