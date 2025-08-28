@@ -1,5 +1,7 @@
 package com.dev001.identify.dto.request;
 
+import com.dev001.identify.validator.DobConstraint;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -17,5 +19,8 @@ public class UserCreationRequest {
     String passWord;
     String firstName;
     String lastName;
+
+    @NotNull(message = "DOB_INVALID")
+    @DobConstraint(min = 18)
     LocalDate dob;
 }

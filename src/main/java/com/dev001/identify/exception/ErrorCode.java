@@ -14,7 +14,8 @@ public enum ErrorCode {
     USERNAME_INVALID(1003, "Username must be between 8 and 20 characters", HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID(1004, "Password must be between 8 and 16 characters", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(1005, "User is not authenticated", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1006, "User is not permitted", HttpStatus.FORBIDDEN);
+    UNAUTHORIZED(1006, "User is not permitted", HttpStatus.FORBIDDEN),
+    DOB_INVALID(1007, "Date of birth invalid", HttpStatus.BAD_REQUEST);
 
 
     private int code;
