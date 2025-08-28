@@ -26,7 +26,7 @@ public class ApplicationInit {
                 User user = User.builder()
                         .userName("admin")
                         .passWord(BcryptPasswordEncoder.encode("admin"))
-                        .roles(roles)
+//                        .roles(roles)
                         .build();
                 userRepository.save(user);
                 log.info("Admin user has been created with default password : admin , please change it");

@@ -1,5 +1,6 @@
 package com.dev001.identify.entity.user;
 
+import com.dev001.identify.entity.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +28,8 @@ public class User {
     @Column(name = "last_name")
     String lastName;
     LocalDate dob;
-    Set<String> roles;
+
+    @ManyToMany
+    Set<Role> roles;
 
 }
