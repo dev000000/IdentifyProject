@@ -7,6 +7,7 @@ import com.dev001.identify.entity.user.User;
 import com.dev001.identify.enums.Role;
 import com.dev001.identify.exception.AppException;
 import com.dev001.identify.mapper.UserMapper;
+import com.dev001.identify.repository.RoleRepository;
 import com.dev001.identify.repository.UserRepository;
 import com.dev001.identify.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,13 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private PasswordEncoder BcryptPasswordEncoder;
 
     @Override
     public UserResponse createUser(UserCreationRequest request) {
@@ -53,7 +60,8 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('READ_DATA')")
     public List<UserResponse> getAllUsers() {
         log.warn("getAllUsers");
         return userMapper.toUserResponse(userRepository.findAll());
@@ -79,8 +87,11 @@ public class UserServiceImpl implements UserService {
     @Override
 
     public UserResponse updateUser(String id, UserUpdateRequest request) {
+        var roles = roleRepository.findAllById(request.getRoles());
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(USER_NOT_FOUND));
+        user.setRoles(new HashSet<>(roles));
         userMapper.updateUser(user, request);
+        user.setPassWord(BcryptPasswordEncoder.encode(request.getPassWord()));
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
