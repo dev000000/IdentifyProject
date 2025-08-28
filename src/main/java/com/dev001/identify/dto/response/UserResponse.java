@@ -1,5 +1,6 @@
 package com.dev001.identify.dto.response;
 
+import com.dev001.identify.entity.role.Role;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -16,5 +17,7 @@ public class UserResponse {
     String firstName;
     String lastName;
     LocalDate dob;
-    Set<String> roles;
+
+    Set<Role> roles;
+
 }
