@@ -26,10 +26,9 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_URLS = { "/api/v1/users", "/api/v1/auth/**" };
+    private final String[] PUBLIC_URLS = { "/api/v1/users", "/api/v1/auth/**", "/api/v1/auth/logout" };
 
-    @Value("${jwt.signerKey}")
-    private String signerKey;
+    private CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -43,7 +42,7 @@ public class SecurityConfig {
         //2. cau hinh resource server de validate JWT
         http.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt
-                        .decoder(jwtDecoder())
+                        .decoder(customJwtDecoder)
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
         );
@@ -61,14 +60,6 @@ public class SecurityConfig {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
-    }
-    @Bean
-    JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
     }
 
     @Bean

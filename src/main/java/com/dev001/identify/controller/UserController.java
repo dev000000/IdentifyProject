@@ -4,7 +4,6 @@ import com.dev001.identify.dto.request.UserCreationRequest;
 import com.dev001.identify.dto.request.UserUpdateRequest;
 import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.dto.response.UserResponse;
-import com.dev001.identify.entity.user.User;
 import com.dev001.identify.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.util.List;
 
 @Slf4j
