@@ -2,16 +2,19 @@ package com.dev001.identify.controller;
 
 import com.dev001.identify.dto.request.AuthenticationRequest;
 import com.dev001.identify.dto.request.IntrospectRequest;
+import com.dev001.identify.dto.request.LogoutRequest;
 import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.dto.response.AuthenticationResponse;
 import com.dev001.identify.dto.response.IntrospectResponse;
 import com.dev001.identify.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController {
@@ -37,9 +40,13 @@ public class AuthenticationController {
                 .data(response)
                 .build();
     }
-    @GetMapping("/logout")
-    public String logout(){
-        return "logout";
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        log.info("Logout request received");
+        authenticationService.logOut(request);
+        return ApiResponse.<Void>builder()
+                .code(1000)
+                .build();
     }
 
 }
