@@ -21,7 +21,6 @@ import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -50,11 +49,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
 
+    @Value("${jwt.valid-duration}")
+    protected Long VALID_DURATION;
+
+    @Value("${jwt.refresh-valid-duration}")
+    protected Long REFRESH_VALID_DURATION;
+
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 //        1. Check if userName exists
         User user = userRepository.findByUserName(request.getUserName()).orElseThrow(() -> new AppException(USER_NOT_FOUND));
-//        2. Use BCryptPasswordEncoder to check if password matches
+//        2. Use BCryptPasswordEncoder to check if the password matches
         boolean authenticated = bCryptPasswordEncoder.matches(request.getPassWord(), user.getPassWord());
         if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
@@ -63,7 +68,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String token = generateToken(user);
         return AuthenticationResponse.builder()
                 .token(token)
-                .authenticated(authenticated)
+                .authenticated(true)
                 .build();
     }
 
@@ -76,7 +81,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .subject(user.getUserName())
                 .issuer("https://github.com/DEV00000001") // don vi phat hanh token
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(7, ChronoUnit.HOURS).toEpochMilli()))
+                .expirationTime(new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.MILLIS).toEpochMilli()))
                 .claim("scope", buildScope(user))
                 .jwtID(UUID.randomUUID().toString())
                 .build();
@@ -97,11 +102,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public IntrospectResponse introspect(IntrospectRequest request) {
         boolean isValid = false;
         try {
-            verifyToken(request.getToken());
+            verifyToken(request.getToken(), false);
 //          1. if token is valid, then set isValid to true, else throw exception in verifyToken method
             isValid = true;
         } catch (JOSEException | ParseException e) {
-
+            log.error("Error while introspecting token", e);
         }
         return IntrospectResponse.builder()
                 .valid(isValid)
@@ -129,7 +134,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void logOut(LogoutRequest request) throws ParseException, JOSEException {
 //      1. verify token, if token is invalid, then throw exception
-        var signToken = verifyToken(request.getToken());
+        var signToken = verifyToken(request.getToken(), true);
 //      2. get jit and expiryTime from token
         String jit = signToken.getJWTClaimsSet().getJWTID();
         Date expirationTime = signToken.getJWTClaimsSet().getExpirationTime();
@@ -144,13 +149,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public SignedJWT verifyToken(String token) throws ParseException, JOSEException {
+    public SignedJWT verifyToken(String token, Boolean isRefresh) throws ParseException, JOSEException {
 //        1. create JWSVerifier for verifying signature
         JWSVerifier jwsVerifier = new MACVerifier(SIGNER_KEY.getBytes());
 //        2. parse token into SignedJWT
         SignedJWT signedJWT = SignedJWT.parse(token);
 //        3. get ExpirationTime and verify signature
-        Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expirationTime = isRefresh
+                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime().toInstant().plus(REFRESH_VALID_DURATION, ChronoUnit.MILLIS).toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
         boolean verified = signedJWT.verify(jwsVerifier);
 //        4. check if verified is false and token not expired
         if (!(verified && expirationTime.after(new Date()))) {
@@ -168,7 +175,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException {
 //      1. verify token, if token is invalid, then throw exception
-        var signToken = verifyToken(request.getToken());
+        var signToken = verifyToken(request.getToken(), true);
 //      2. get userName, jit and expiryTime from token
         String userName = signToken.getJWTClaimsSet().getSubject();
         String jit = signToken.getJWTClaimsSet().getJWTID();
