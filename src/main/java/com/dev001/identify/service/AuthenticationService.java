@@ -3,6 +3,7 @@ package com.dev001.identify.service;
 import com.dev001.identify.dto.request.AuthenticationRequest;
 import com.dev001.identify.dto.request.IntrospectRequest;
 import com.dev001.identify.dto.request.LogoutRequest;
+import com.dev001.identify.dto.request.RefreshTokenRequest;
 import com.dev001.identify.dto.response.AuthenticationResponse;
 import com.dev001.identify.dto.response.IntrospectResponse;
 import com.dev001.identify.entity.user.User;
@@ -21,5 +22,7 @@ public interface AuthenticationService {
     String buildScope(User user);
     void logOut(LogoutRequest request) throws ParseException, JOSEException;
     SignedJWT verifyToken(String token) throws ParseException, JOSEException;
+    AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException;
+
 
 }

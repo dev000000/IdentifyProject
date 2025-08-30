@@ -26,7 +26,7 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_URLS = { "/api/v1/users", "/api/v1/auth/**", "/api/v1/auth/logout" };
+    private final String[] PUBLIC_URLS = { "/api/v1/users", "/api/v1/auth/**", "/api/v1/auth/logout", "/api/v1/auth/refresh-token" };
 
     private CustomJwtDecoder customJwtDecoder;
 
