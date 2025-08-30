@@ -3,6 +3,7 @@ package com.dev001.identify.controller;
 import com.dev001.identify.dto.request.AuthenticationRequest;
 import com.dev001.identify.dto.request.IntrospectRequest;
 import com.dev001.identify.dto.request.LogoutRequest;
+import com.dev001.identify.dto.request.RefreshTokenRequest;
 import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.dto.response.AuthenticationResponse;
 import com.dev001.identify.dto.response.IntrospectResponse;
@@ -42,11 +43,19 @@ public class AuthenticationController {
     }
     @PostMapping("/logout")
     public ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
-        log.info("Logout request received");
         authenticationService.logOut(request);
         return ApiResponse.<Void>builder()
                 .code(1000)
                 .build();
     }
+    @PostMapping("/refresh-token")
+    public ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshTokenRequest request) throws ParseException, JOSEException {
+        AuthenticationResponse response = authenticationService.refreshToken(request);
+        return ApiResponse.<AuthenticationResponse>builder()
+                .code(1000)
+                .data(response)
+                .build();
+    }
+
 
 }

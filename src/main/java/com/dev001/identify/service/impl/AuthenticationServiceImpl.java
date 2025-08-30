@@ -3,6 +3,7 @@ package com.dev001.identify.service.impl;
 import com.dev001.identify.dto.request.AuthenticationRequest;
 import com.dev001.identify.dto.request.IntrospectRequest;
 import com.dev001.identify.dto.request.LogoutRequest;
+import com.dev001.identify.dto.request.RefreshTokenRequest;
 import com.dev001.identify.dto.response.AuthenticationResponse;
 import com.dev001.identify.dto.response.IntrospectResponse;
 import com.dev001.identify.entity.invalidatedToken.InvalidatedToken;
@@ -162,6 +163,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         return signedJWT;
 
+    }
+
+    @Override
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException {
+//      1. verify token, if token is invalid, then throw exception
+        var signToken = verifyToken(request.getToken());
+//      2. get userName, jit and expiryTime from token
+        String userName = signToken.getJWTClaimsSet().getSubject();
+        String jit = signToken.getJWTClaimsSet().getJWTID();
+        Date expirationTime = signToken.getJWTClaimsSet().getExpirationTime();
+//      3. build invalidatedToken entity for adding token in DB
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .id(jit)
+                .expiryTime(expirationTime)
+                .build();
+//      4. save invalidatedToken entity
+        invalidatedTokenRepository.save(invalidatedToken);
+//      5. Generate token
+        User user = userRepository.findByUserName(userName).orElseThrow(() -> new AppException(USER_NOT_FOUND));
+        String newToken = generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(newToken)
+                .authenticated(true)
+                .build();
     }
 
 }
