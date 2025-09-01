@@ -63,7 +63,6 @@ public class UserServiceImpl implements UserService {
 //    @PreAuthorize("hasRole('ADMIN')")
     @PreAuthorize("hasAuthority('READ_DATA')")
     public List<UserResponse> getAllUsers() {
-        log.warn("getAllUsers");
         return userMapper.toUserResponse(userRepository.findAll());
     }
 
