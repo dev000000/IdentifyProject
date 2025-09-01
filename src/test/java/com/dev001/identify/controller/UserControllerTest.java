@@ -106,7 +106,8 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("code").value(1004))
                 .andExpect(MockMvcResultMatchers.jsonPath("message").value("Password must be between 10 and 20 characters"));
-        verify(userService).createUser(any());
+
+        verify(userService,never()).createUser(any());
         // then
 
     }
