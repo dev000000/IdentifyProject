@@ -71,7 +71,7 @@ class UserServiceImplTest {
 //  this is a naming convention for test method name
 //  methodName_StateUnderTest_ExpectedBehavior()
     void getAllUsers_shouldReturnMappedList() {
-        // get: input, create mock bean behavior (input -> output)
+        // given: input, create mock bean behavior (input -> output)
         when(userRepository.findAll()).thenReturn(List.of(user));
         when(userMapper.toUserResponse(List.of(user))).thenReturn(List.of(userResponse));
         // when: method under test
