@@ -107,6 +107,41 @@
     <build>
         <plugins>
             <plugin>
+                <!-- JaCoCo plugin for code coverage -->
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <!-- Execution 1: attach JaCoCo agent to JVM during tests -->
+                    <execution>
+                        <goals>
+                            <goal>
+                                prepare-agent
+                            </goal>
+                        </goals>
+                    </execution>
+                    <!-- Execution 2: generate coverage report at prepare-package phase -->
+                    <execution>
+                        <id>report</id> <!-- identifier for this execution -->
+                        <phase>test</phase> <!-- run before packaging -->
+                        <goals>
+                            <goal>report</goal> <!-- goal: create coverage report -->
+                        </goals>
+                    </execution>
+                </executions>
+                <!-- configuration tag: defines custom settings for this plugin -->
+                <configuration>
+                    <!-- Exclude classes/packages from coverage calculation -->
+                    <excludes>
+                        <exclude>com/dev001/identify/dto/**</exclude>
+                        <exclude>com/dev001/identify/entity/**</exclude>
+                        <exclude>com/dev001/identify/mapper/**</exclude>
+                        <exclude>com/dev001/identify/configuration/**</exclude>
+                    </excludes>
+                </configuration>
+
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
