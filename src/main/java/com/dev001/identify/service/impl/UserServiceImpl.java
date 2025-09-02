@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserResponse(user);
     }
     @Override
-    @PostAuthorize("returnObject.userName == authentication.name")
+//    @PostAuthorize("returnObject.userName == authentication.name")
     public UserResponse getMyProfile() {
         SecurityContext context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();

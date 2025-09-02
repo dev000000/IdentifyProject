@@ -27,13 +27,23 @@
 		<tag/>
 		<url/>
 	</scm>
-
     <properties>
         <java.version>17</java.version>
         <projectlombok-lombok.version>1.18.30</projectlombok-lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>1.21.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -74,6 +84,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -103,9 +118,58 @@
             <artifactId>mapstruct-processor</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
+        <!-- Testcontainers JUnit5 -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Testcontainers MySQL -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
 	</dependencies>
+
     <build>
         <plugins>
+            <plugin>
+                <!-- JaCoCo plugin for code coverage -->
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <!-- Execution 1: attach JaCoCo agent to JVM during tests -->
+                    <execution>
+                        <goals>
+                            <goal>
+                                prepare-agent
+                            </goal>
+                        </goals>
+                    </execution>
+                    <!-- Execution 2: generate coverage report at prepare-package phase -->
+                    <execution>
+                        <id>report</id> <!-- identifier for this execution -->
+                        <phase>test</phase> <!-- run before packaging -->
+                        <goals>
+                            <goal>report</goal> <!-- goal: create coverage report -->
+                        </goals>
+                    </execution>
+                </executions>
+                <!-- configuration tag: defines custom settings for this plugin -->
+                <configuration>
+                    <!-- Exclude classes/packages from coverage calculation -->
+                    <excludes>
+                        <exclude>com/dev001/identify/dto/**</exclude>
+                        <exclude>com/dev001/identify/entity/**</exclude>
+                        <exclude>com/dev001/identify/mapper/**</exclude>
+                        <exclude>com/dev001/identify/configuration/**</exclude>
+                    </excludes>
+                </configuration>
+
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
