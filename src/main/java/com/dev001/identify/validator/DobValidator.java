@@ -1,14 +1,13 @@
 package com.dev001.identify.validator;
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-public class DobValidator implements ConstraintValidator<DobConstraint, LocalDate> {
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
+public class DobValidator implements ConstraintValidator<DobConstraint, LocalDate> {
 
     private int min;
 
@@ -20,7 +19,7 @@ public class DobValidator implements ConstraintValidator<DobConstraint, LocalDat
 
     @Override
     public boolean isValid(LocalDate localDate, ConstraintValidatorContext constraintValidatorContext) {
-        if(Objects.isNull(localDate)) return true;
+        if (Objects.isNull(localDate)) return true;
         long between = ChronoUnit.YEARS.between(localDate, LocalDate.now());
         return between >= min;
     }

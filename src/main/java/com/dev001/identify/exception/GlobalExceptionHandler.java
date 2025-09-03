@@ -1,15 +1,18 @@
 package com.dev001.identify.exception;
 
-import com.dev001.identify.dto.response.ApiResponse;
+import java.util.Map;
+import java.util.Objects;
+
 import jakarta.validation.ConstraintViolation;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.Map;
-import java.util.Objects;
+import com.dev001.identify.dto.response.ApiResponse;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ControllerAdvice
@@ -20,14 +23,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse> handleException(Exception exception) {
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
-        ApiResponse apiResponse = ApiResponse.builder().code(errorCode.getCode()).message(errorCode.getMessage()).build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build();
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse> handleAppException(AppException exception) {
         ErrorCode errorCode = exception.getErrorCode();
-        ApiResponse apiResponse = ApiResponse.builder().code(errorCode.getCode()).message(errorCode.getMessage()).build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build();
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
@@ -37,33 +46,40 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ErrorCode.valueOf(enumKey);
 
         // Luu attribute
-        var constraintViolation = exception.getBindingResult().getAllErrors().get(0).unwrap(ConstraintViolation.class);
+        var constraintViolation =
+                exception.getBindingResult().getAllErrors().get(0).unwrap(ConstraintViolation.class);
         // example exception.getBindingResult().getAllErrors() : ListOf<FieldError>
         /*[
-          FieldError{objectName='userDTO', field='username',
-             rejectedValue=ab, // du lieu nhap vao ma ko hop le
-             defaultMessage='USERNAME_INVALID_LENGTH'},
+        FieldError{objectName='userDTO', field='username',
+        	rejectedValue=ab, // du lieu nhap vao ma ko hop le
+        	defaultMessage='USERNAME_INVALID_LENGTH'},
 
-          FieldError{objectName='userDTO', field='age',
-             rejectedValue=15,
-             defaultMessage='AGE_TOO_SMALL'}
+        FieldError{objectName='userDTO', field='age',
+        	rejectedValue=15,
+        	defaultMessage='AGE_TOO_SMALL'}
         ] */
-//        example .unwrap(ConstraintViolation.class)
-/*     propertyPath: username
-       invalidValue: ab
-       message: USERNAME_INVALID_LENGTH
-       constraintDescriptor: @Size(min=5, max=10)
- */
+        //        example .unwrap(ConstraintViolation.class)
+        /*     propertyPath: username
+        invalidValue: ab
+        message: USERNAME_INVALID_LENGTH
+        constraintDescriptor: @Size(min=5, max=10)
+        */
         var attributes = constraintViolation.getConstraintDescriptor().getAttributes();
         /*{ example getAttributes()
-            "min": 5,
-            "max": 10,
-            "message": "USERNAME_INVALID_LENGTH",
-            "groups": [],
-            "payload": []
+        	"min": 5,
+        	"max": 10,
+        	"message": "USERNAME_INVALID_LENGTH",
+        	"groups": [],
+        	"payload": []
         }
          */
-        ApiResponse apiResponse = ApiResponse.builder().code(errorCode.getCode()).message(Objects.nonNull(attributes) ? mapAttributes(errorCode.getMessage(), attributes) : errorCode.getMessage()).build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .code(errorCode.getCode())
+                .message(
+                        Objects.nonNull(attributes)
+                                ? mapAttributes(errorCode.getMessage(), attributes)
+                                : errorCode.getMessage())
+                .build();
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
@@ -74,5 +90,4 @@ public class GlobalExceptionHandler {
         message = message.replace("{" + MIN_ATTRIBUTE + "}", minValue).replace("{" + MAX_ATTRIBUTE + "}", maxValue);
         return message;
     }
-
 }

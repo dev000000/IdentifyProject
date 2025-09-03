@@ -1,9 +1,10 @@
 package com.dev001.identify.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
@@ -17,9 +18,7 @@ public enum ErrorCode {
     UNAUTHORIZED(1006, "User is not permitted", HttpStatus.FORBIDDEN),
     DOB_INVALID(1007, "User must be > {min}", HttpStatus.BAD_REQUEST);
 
-
     private int code;
     private String message;
     private HttpStatusCode statusCode;
-
 }

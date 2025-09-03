@@ -1,5 +1,20 @@
 package com.dev001.identify.service.impl;
 
+import static com.dev001.identify.exception.ErrorCode.USER_NOT_FOUND;
+
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.StringJoiner;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import com.dev001.identify.dto.request.AuthenticationRequest;
 import com.dev001.identify.dto.request.IntrospectRequest;
 import com.dev001.identify.dto.request.LogoutRequest;
@@ -18,21 +33,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
-import java.util.UUID;
-
-import static com.dev001.identify.exception.ErrorCode.USER_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -57,37 +59,37 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-//        1. Check if userName exists
-        User user = userRepository.findByUserName(request.getUserName()).orElseThrow(() -> new AppException(USER_NOT_FOUND));
-//        2. Use BCryptPasswordEncoder to check if the password matches
+        //        1. Check if userName exists
+        User user = userRepository
+                .findByUserName(request.getUserName())
+                .orElseThrow(() -> new AppException(USER_NOT_FOUND));
+        //        2. Use BCryptPasswordEncoder to check if the password matches
         boolean authenticated = bCryptPasswordEncoder.matches(request.getPassWord(), user.getPassWord());
         if (!authenticated) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-//        3. Generate token
+        //        3. Generate token
         String token = generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(token)
-                .authenticated(true)
-                .build();
+        return AuthenticationResponse.builder().token(token).authenticated(true).build();
     }
 
     @Override
     public String generateToken(User user) {
-//      1. create header
+        //      1. create header
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
-//      2. create jwt claims set for payload
+        //      2. create jwt claims set for payload
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUserName())
                 .issuer("https://github.com/DEV00000001") // don vi phat hanh token
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(VALID_DURATION, ChronoUnit.MILLIS).toEpochMilli()))
+                .expirationTime(new Date(
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.MILLIS).toEpochMilli()))
                 .claim("scope", buildScope(user))
                 .jwtID(UUID.randomUUID().toString())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
-//        3. create jwsObject for signing
+        //        3. create jwsObject for signing
         JWSObject jwsObject = new JWSObject(jwsHeader, payload);
         try {
             jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
@@ -103,26 +105,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         boolean isValid = false;
         try {
             verifyToken(request.getToken(), false);
-//          1. if token is valid, then set isValid to true, else throw exception in verifyToken method
+            //          1. if token is valid, then set isValid to true, else throw exception in verifyToken method
             isValid = true;
         } catch (JOSEException | ParseException e) {
             log.error("Error while introspecting token", e);
         }
-        return IntrospectResponse.builder()
-                .valid(isValid)
-                .build();
+        return IntrospectResponse.builder().valid(isValid).build();
     }
-
 
     @Override
     public String buildScope(User user) {
-//      1. create stringJoiner for building scope string
+        //      1. create stringJoiner for building scope string
         StringJoiner stringJoiner = new StringJoiner(" ");
-//      2. check if a user has roles and add roles and permissions to scope string
+        //      2. check if a user has roles and add roles and permissions to scope string
         if (!CollectionUtils.isEmpty(user.getRoles())) {
             user.getRoles().forEach(role -> {
                 stringJoiner.add("ROLE_" + role.getName());
-//              3. check if a role has permissions and add permissions to the scope string
+                //              3. check if a role has permissions and add permissions to the scope string
                 if (!CollectionUtils.isEmpty(role.getPermissions())) {
                     role.getPermissions().forEach(permission -> stringJoiner.add(permission.getName()));
                 }
@@ -133,61 +132,60 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void logOut(LogoutRequest request) throws ParseException, JOSEException {
-//      1. verify token, if token is invalid, then throw exception
+        //      1. verify token, if token is invalid, then throw exception
         var signToken = verifyToken(request.getToken(), true);
-//      2. get jit and expiryTime from token
+        //      2. get jit and expiryTime from token
         String jit = signToken.getJWTClaimsSet().getJWTID();
         Date expirationTime = signToken.getJWTClaimsSet().getExpirationTime();
-//      3. build invalidatedToken entity for adding token in DB
-        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
-                .id(jit)
-                .expiryTime(expirationTime)
-                .build();
-//      4. save invalidatedToken entity
+        //      3. build invalidatedToken entity for adding token in DB
+        InvalidatedToken invalidatedToken =
+                InvalidatedToken.builder().id(jit).expiryTime(expirationTime).build();
+        //      4. save invalidatedToken entity
         invalidatedTokenRepository.save(invalidatedToken);
-
     }
 
     @Override
     public SignedJWT verifyToken(String token, Boolean isRefresh) throws ParseException, JOSEException {
-//        1. create JWSVerifier for verifying signature
+        //        1. create JWSVerifier for verifying signature
         JWSVerifier jwsVerifier = new MACVerifier(SIGNER_KEY.getBytes());
-//        2. parse token into SignedJWT
+        //        2. parse token into SignedJWT
         SignedJWT signedJWT = SignedJWT.parse(token);
-//        3. get ExpirationTime and verify signature
+        //        3. get ExpirationTime and verify signature
         Date expirationTime = isRefresh
-                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime().toInstant().plus(REFRESH_VALID_DURATION, ChronoUnit.MILLIS).toEpochMilli())
+                ? new Date(signedJWT
+                        .getJWTClaimsSet()
+                        .getIssueTime()
+                        .toInstant()
+                        .plus(REFRESH_VALID_DURATION, ChronoUnit.MILLIS)
+                        .toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
         boolean verified = signedJWT.verify(jwsVerifier);
-//        4. check if verified is false and token not expired
+        //        4. check if verified is false and token not expired
         if (!(verified && expirationTime.after(new Date()))) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-//        5. check if the token is not in the blacklist
+        //        5. check if the token is not in the blacklist
         if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
         return signedJWT;
-
     }
 
     @Override
     public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException {
-//      1. verify token, if token is invalid, then throw exception
+        //      1. verify token, if token is invalid, then throw exception
         var signToken = verifyToken(request.getToken(), true);
-//      2. get userName, jit and expiryTime from token
+        //      2. get userName, jit and expiryTime from token
         String userName = signToken.getJWTClaimsSet().getSubject();
         String jit = signToken.getJWTClaimsSet().getJWTID();
         Date expirationTime = signToken.getJWTClaimsSet().getExpirationTime();
-//      3. build invalidatedToken entity for adding token in DB
-        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
-                .id(jit)
-                .expiryTime(expirationTime)
-                .build();
-//      4. save invalidatedToken entity
+        //      3. build invalidatedToken entity for adding token in DB
+        InvalidatedToken invalidatedToken =
+                InvalidatedToken.builder().id(jit).expiryTime(expirationTime).build();
+        //      4. save invalidatedToken entity
         invalidatedTokenRepository.save(invalidatedToken);
-//      5. Generate token
+        //      5. Generate token
         User user = userRepository.findByUserName(userName).orElseThrow(() -> new AppException(USER_NOT_FOUND));
         String newToken = generateToken(user);
         return AuthenticationResponse.builder()
@@ -195,5 +193,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .authenticated(true)
                 .build();
     }
-
 }

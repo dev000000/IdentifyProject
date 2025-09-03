@@ -1,22 +1,18 @@
 package com.dev001.identify.service.impl;
 
-import com.dev001.identify.dto.request.PermissionRequest;
-import com.dev001.identify.dto.request.RoleRequest;
-import com.dev001.identify.dto.response.PermissionResponse;
-import com.dev001.identify.dto.response.RoleResponse;
-import com.dev001.identify.entity.permission.Permission;
-import com.dev001.identify.entity.role.Role;
-import com.dev001.identify.mapper.PermissionMapper;
-import com.dev001.identify.mapper.RoleMapper;
-import com.dev001.identify.repository.PermissionRepository;
-import com.dev001.identify.repository.RoleRepository;
-import com.dev001.identify.service.PermissionService;
-import com.dev001.identify.service.RoleService;
+import java.util.HashSet;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
+import com.dev001.identify.dto.request.RoleRequest;
+import com.dev001.identify.dto.response.RoleResponse;
+import com.dev001.identify.entity.role.Role;
+import com.dev001.identify.mapper.RoleMapper;
+import com.dev001.identify.repository.PermissionRepository;
+import com.dev001.identify.repository.RoleRepository;
+import com.dev001.identify.service.RoleService;
 
 @Service
 public class RoleServiceImpl implements RoleService {
@@ -46,9 +42,6 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<RoleResponse> getAllRoles() {
-        return roleRepository.findAll()
-                .stream()
-                .map(roleMapper::toRoleResponse)
-                .toList();
+        return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
     }
 }

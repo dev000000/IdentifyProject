@@ -1,13 +1,14 @@
 package com.dev001.identify.dto.response;
 
+import java.time.LocalDate;
+import java.util.Set;
+
 import com.dev001.identify.entity.role.Role;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
-import java.util.Set;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -21,5 +22,4 @@ public class UserResponse {
     LocalDate dob;
 
     Set<Role> roles;
-
 }

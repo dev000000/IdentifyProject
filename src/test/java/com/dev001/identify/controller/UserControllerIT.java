@@ -1,9 +1,7 @@
 package com.dev001.identify.controller;
 
-import com.dev001.identify.dto.request.UserCreationRequest;
-import com.dev001.identify.dto.response.UserResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,10 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.LocalDate;
+import com.dev001.identify.dto.request.UserCreationRequest;
+import com.dev001.identify.dto.response.UserResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -76,19 +77,18 @@ class UserControllerIT {
         String content = objectMapper.writeValueAsString(request);
         // convert the object to JSON string
         /*
-            {
-              "userName": "testtesttest",
-              "passWord": "passwordtest",
-              "firstName": "test",
-              "lastName": "test",
-              "dob": "2007-08-28"
-            }
-         */
+        {
+        "userName": "testtesttest",
+        "passWord": "passwordtest",
+        "firstName": "test",
+        "lastName": "test",
+        "dob": "2007-08-28"
+        }
+        */
         // when
-        mockMvc.perform(MockMvcRequestBuilders
-                .post("/api/v1/users")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(content))
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(content))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("code").value(1000))
                 .andExpect(MockMvcResultMatchers.jsonPath("data.userName").value("testtesttest"))
@@ -98,6 +98,7 @@ class UserControllerIT {
         // then
 
     }
+
     @Test
     void createUser_inValidPassword_shouldReturnUserDetails() throws Exception {
         // given
@@ -108,12 +109,12 @@ class UserControllerIT {
         // convert object to JSON string
 
         // when and then
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/api/v1/users")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(content))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("code").value(1004))
-                .andExpect(MockMvcResultMatchers.jsonPath("message").value("Password must be between 10 and 20 characters"));
+                .andExpect(MockMvcResultMatchers.jsonPath("message")
+                        .value("Password must be between 10 and 20 characters"));
     }
 }

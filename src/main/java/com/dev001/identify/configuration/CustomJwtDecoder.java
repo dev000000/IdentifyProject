@@ -1,8 +1,9 @@
 package com.dev001.identify.configuration;
 
-import com.dev001.identify.dto.request.IntrospectRequest;
-import com.dev001.identify.service.AuthenticationService;
-import com.nimbusds.jose.JOSEException;
+import java.text.ParseException;
+import java.util.Objects;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -12,13 +13,12 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.spec.SecretKeySpec;
-import java.text.ParseException;
-import java.util.Objects;
+import com.dev001.identify.dto.request.IntrospectRequest;
+import com.dev001.identify.service.AuthenticationService;
+import com.nimbusds.jose.JOSEException;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
-
 
     private NimbusJwtDecoder nimbusJwtDecoder = null;
 
@@ -31,18 +31,15 @@ public class CustomJwtDecoder implements JwtDecoder {
     @Override
     public Jwt decode(String token) throws JwtException {
         try {
-            authenticationService.introspect(IntrospectRequest.builder()
-                    .token(token)
-                    .build());
+            authenticationService.introspect(
+                    IntrospectRequest.builder().token(token).build());
 
         } catch (JOSEException | ParseException e) {
             throw new JwtException(e.getMessage());
-
         }
-        if(Objects.isNull(nimbusJwtDecoder)) {
+        if (Objects.isNull(nimbusJwtDecoder)) {
             SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-            nimbusJwtDecoder = NimbusJwtDecoder
-                    .withSecretKey(secretKeySpec)
+            nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
                     .macAlgorithm(MacAlgorithm.HS512)
                     .build();
         }
