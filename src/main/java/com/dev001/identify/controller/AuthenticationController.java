@@ -2,7 +2,7 @@ package com.dev001.identify.controller;
 
 import java.text.ParseException;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import com.dev001.identify.dto.request.AuthenticationRequest;
@@ -19,11 +19,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationService authenticationService;
+
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/token")
     public ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {

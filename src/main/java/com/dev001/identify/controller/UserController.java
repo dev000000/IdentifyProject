@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @GetMapping
     public ApiResponse<List<UserResponse>> getUsers() {
@@ -37,7 +38,7 @@ public class UserController {
                             .code(1000)
                             .data(userService.getAllUsers())
                         .build();
-//      spotless:on
+        //      spotless:on
     }
 
     @PostMapping

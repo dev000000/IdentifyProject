@@ -2,7 +2,7 @@ package com.dev001.identify.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import com.dev001.identify.dto.request.PermissionRequest;
@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/permissions")
 public class PermissionController {
 
-    @Autowired
-    private PermissionService permissionService;
+    private final PermissionService permissionService;
 
     @GetMapping
     public ApiResponse<List<PermissionResponse>> getPermissions() {
