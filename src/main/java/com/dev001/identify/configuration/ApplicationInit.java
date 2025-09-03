@@ -2,6 +2,7 @@ package com.dev001.identify.configuration;
 
 import java.util.Set;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,20 +17,21 @@ import com.dev001.identify.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@RequiredArgsConstructor
 @Slf4j
 public class ApplicationInit {
-    @Autowired
-    private PasswordEncoder BcryptPasswordEncoder;
+
+    private final PasswordEncoder bcryptPasswordEncoder;
 
     @Bean
     @ConditionalOnProperty(prefix = "spring", name = "driverClassName", havingValue = "com.mysql.cj.jdbc.Driver")
     public ApplicationRunner applicationRunner(UserRepository userRepository) {
         return args -> {
             if (userRepository.findByUserName("admin").isEmpty()) {
-                Set<String> roles = Set.of(Role.ADMIN.name());
+//                Set<String> roles = Set.of(Role.ADMIN.name());
                 User user = User.builder()
                         .userName("admin")
-                        .passWord(BcryptPasswordEncoder.encode("admin"))
+                        .passWord(bcryptPasswordEncoder.encode("admin"))
                         //                        .roles(roles)
                         .build();
                 userRepository.save(user);
