@@ -9,8 +9,8 @@
         <relativePath/>
     </parent>
     <groupId>com.dev001</groupId>
-    <artifactId>identify</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>backend-identify</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 	<name>identify</name>
 	<description>Project Demo Identify</description>
 
