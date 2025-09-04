@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.dev001.identify.service.impl.UserServiceImplTest
+-------------------------------------------------------------------------------
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 3, Time elapsed: 0.359 s -- in com.dev001.identify.service.impl.UserServiceImplTest
