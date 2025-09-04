@@ -1,33 +1,66 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+############################
+# Java / Spring Boot backend
+############################
+/identify/BACKEND/target/
+/identify/BACKEND/.mvn/wrapper/maven-wrapper.jar
+!/identify/BACKEND/**/src/main/**/target/
+/identify/BACKEND/**/src/test/**/target/
 
 ### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+/identify/BACKEND/.apt_generated
+/identify/BACKEND/.classpath
+/identify/BACKEND/.factorypath
+/identify/BACKEND/.project
+/identify/BACKEND/.settings
+/identify/BACKEND/.springBeans
+/identify/BACKEND/.sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
 
 ### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+/identify/BACKEND/nbproject/private/
+/identify/BACKEND/nbbuild/
+/identify/BACKEND/dist/
+/identify/BACKEND/nbdist/
+/identify/BACKEND/.nb-gradle/
+/identify/BACKEND/build/
+!/identify/BACKEND/**/src/main/**/build/
+/identify/BACKEND/**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
+
+############################
+# Node.js / Frontend (Vite)
+############################
+/identify/FRONTEND/node_modules/
+/identify/FRONTEND/dist/
+/identify/FRONTEND/dist-ssr/
+
+# Logs
+/identify/FRONTEND/logs
+/identify/FRONTEND/*.log
+/identify/FRONTEND/npm-debug.log*
+/identify/FRONTEND/yarn-debug.log*
+/identify/FRONTEND/yarn-error.log*
+/identify/FRONTEND/pnpm-debug.log*
+/identify/FRONTEND/lerna-debug.log*
+
+# Local config
+/identify/FRONTEND/*.local
+
+# Editor directories and files (frontend)
+#/identify/FRONTEND/.vscode/*
+!/identify/FRONTEND/.vscode/extensions.json
+/identify/FRONTEND/.idea
+/identify/FRONTEND/.DS_Store
+/identify/FRONTEND/*.suo
+/identify/FRONTEND/*.ntvs*
+/identify/FRONTEND/*.njsproj
+/identify/FRONTEND/*.sln
+/identify/FRONTEND/*.sw?
+
