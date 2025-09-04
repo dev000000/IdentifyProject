@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthenticationServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">identify</a> &gt; <a href="index.source.html" class="el_package">com.dev001.identify.service.impl</a> &gt; <span class="el_source">AuthenticationServiceImpl.java</span></div><h1>AuthenticationServiceImpl.java</h1><pre class="source lang-java linenums">package com.dev001.identify.service.impl;
+
+import static com.dev001.identify.exception.ErrorCode.USER_NOT_FOUND;
+
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.StringJoiner;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import com.dev001.identify.dto.request.AuthenticationRequest;
+import com.dev001.identify.dto.request.IntrospectRequest;
+import com.dev001.identify.dto.request.LogoutRequest;
+import com.dev001.identify.dto.request.RefreshTokenRequest;
+import com.dev001.identify.dto.response.AuthenticationResponse;
+import com.dev001.identify.dto.response.IntrospectResponse;
+import com.dev001.identify.entity.invalidatedToken.InvalidatedToken;
+import com.dev001.identify.entity.user.User;
+import com.dev001.identify.exception.AppException;
+import com.dev001.identify.exception.ErrorCode;
+import com.dev001.identify.repository.InvalidatedTokenRepository;
+import com.dev001.identify.repository.UserRepository;
+import com.dev001.identify.service.AuthenticationService;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+
+import lombok.extern.slf4j.Slf4j;
+
+<span class="fc" id="L39">@Slf4j</span>
+@Service
+<span class="fc" id="L41">public class AuthenticationServiceImpl implements AuthenticationService {</span>
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private InvalidatedTokenRepository invalidatedTokenRepository;
+
+    @Autowired
+    private PasswordEncoder bCryptPasswordEncoder;
+
+    @Value(&quot;${jwt.signerKey}&quot;)
+    protected String SIGNER_KEY;
+
+    @Value(&quot;${jwt.valid-duration}&quot;)
+    protected Long VALID_DURATION;
+
+    @Value(&quot;${jwt.refresh-valid-duration}&quot;)
+    protected Long REFRESH_VALID_DURATION;
+
+    @Override
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        //        1. Check if userName exists
+<span class="nc" id="L63">        User user = userRepository</span>
+<span class="nc" id="L64">                .findByUserName(request.getUserName())</span>
+<span class="nc" id="L65">                .orElseThrow(() -&gt; new AppException(USER_NOT_FOUND));</span>
+        //        2. Use BCryptPasswordEncoder to check if the password matches
+<span class="nc" id="L67">        boolean authenticated = bCryptPasswordEncoder.matches(request.getPassWord(), user.getPassWord());</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (!authenticated) {</span>
+<span class="nc" id="L69">            throw new AppException(ErrorCode.UNAUTHENTICATED);</span>
+        }
+        //        3. Generate token
+<span class="nc" id="L72">        String token = generateToken(user);</span>
+<span class="nc" id="L73">        return AuthenticationResponse.builder().token(token).authenticated(true).build();</span>
+    }
+
+    @Override
+    public String generateToken(User user) {
+        //      1. create header
+<span class="nc" id="L79">        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);</span>
+        //      2. create jwt claims set for payload
+<span class="nc" id="L81">        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()</span>
+<span class="nc" id="L82">                .subject(user.getUserName())</span>
+<span class="nc" id="L83">                .issuer(&quot;https://github.com/DEV00000001&quot;) // don vi phat hanh token</span>
+<span class="nc" id="L84">                .issueTime(new Date())</span>
+<span class="nc" id="L85">                .expirationTime(new Date(</span>
+<span class="nc" id="L86">                        Instant.now().plus(VALID_DURATION, ChronoUnit.MILLIS).toEpochMilli()))</span>
+<span class="nc" id="L87">                .claim(&quot;scope&quot;, buildScope(user))</span>
+<span class="nc" id="L88">                .jwtID(UUID.randomUUID().toString())</span>
+<span class="nc" id="L89">                .build();</span>
+
+<span class="nc" id="L91">        Payload payload = new Payload(jwtClaimsSet.toJSONObject());</span>
+        //        3. create jwsObject for signing
+<span class="nc" id="L93">        JWSObject jwsObject = new JWSObject(jwsHeader, payload);</span>
+        try {
+<span class="nc" id="L95">            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));</span>
+<span class="nc" id="L96">            return jwsObject.serialize();</span>
+<span class="nc" id="L97">        } catch (JOSEException e) {</span>
+<span class="nc" id="L98">            log.error(&quot;Error while generating token&quot;, e);</span>
+<span class="nc" id="L99">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    @Override
+    public IntrospectResponse introspect(IntrospectRequest request) {
+<span class="nc" id="L105">        boolean isValid = false;</span>
+        try {
+<span class="nc" id="L107">            verifyToken(request.getToken(), false);</span>
+            //          1. if token is valid, then set isValid to true, else throw exception in verifyToken method
+<span class="nc" id="L109">            isValid = true;</span>
+<span class="nc" id="L110">        } catch (JOSEException | ParseException e) {</span>
+<span class="nc" id="L111">            log.error(&quot;Error while introspecting token&quot;, e);</span>
+<span class="nc" id="L112">        }</span>
+<span class="nc" id="L113">        return IntrospectResponse.builder().valid(isValid).build();</span>
+    }
+
+    @Override
+    public String buildScope(User user) {
+        //      1. create stringJoiner for building scope string
+<span class="nc" id="L119">        StringJoiner stringJoiner = new StringJoiner(&quot; &quot;);</span>
+        //      2. check if a user has roles and add roles and permissions to scope string
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (!CollectionUtils.isEmpty(user.getRoles())) {</span>
+<span class="nc" id="L122">            user.getRoles().forEach(role -&gt; {</span>
+<span class="nc" id="L123">                stringJoiner.add(&quot;ROLE_&quot; + role.getName());</span>
+                //              3. check if a role has permissions and add permissions to the scope string
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                if (!CollectionUtils.isEmpty(role.getPermissions())) {</span>
+<span class="nc" id="L126">                    role.getPermissions().forEach(permission -&gt; stringJoiner.add(permission.getName()));</span>
+                }
+<span class="nc" id="L128">            });</span>
+        }
+<span class="nc" id="L130">        return stringJoiner.toString();</span>
+    }
+
+    @Override
+    public void logOut(LogoutRequest request) throws ParseException, JOSEException {
+        //      1. verify token, if token is invalid, then throw exception
+<span class="nc" id="L136">        var signToken = verifyToken(request.getToken(), true);</span>
+        //      2. get jit and expiryTime from token
+<span class="nc" id="L138">        String jit = signToken.getJWTClaimsSet().getJWTID();</span>
+<span class="nc" id="L139">        Date expirationTime = signToken.getJWTClaimsSet().getExpirationTime();</span>
+        //      3. build invalidatedToken entity for adding token in DB
+        InvalidatedToken invalidatedToken =
+<span class="nc" id="L142">                InvalidatedToken.builder().id(jit).expiryTime(expirationTime).build();</span>
+        //      4. save invalidatedToken entity
+<span class="nc" id="L144">        invalidatedTokenRepository.save(invalidatedToken);</span>
+<span class="nc" id="L145">    }</span>
+
+    @Override
+    public SignedJWT verifyToken(String token, Boolean isRefresh) throws ParseException, JOSEException {
+        //        1. create JWSVerifier for verifying signature
+<span class="nc" id="L150">        JWSVerifier jwsVerifier = new MACVerifier(SIGNER_KEY.getBytes());</span>
+        //        2. parse token into SignedJWT
+<span class="nc" id="L152">        SignedJWT signedJWT = SignedJWT.parse(token);</span>
+        //        3. get ExpirationTime and verify signature
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        Date expirationTime = isRefresh</span>
+<span class="nc" id="L155">                ? new Date(signedJWT</span>
+<span class="nc" id="L156">                        .getJWTClaimsSet()</span>
+<span class="nc" id="L157">                        .getIssueTime()</span>
+<span class="nc" id="L158">                        .toInstant()</span>
+<span class="nc" id="L159">                        .plus(REFRESH_VALID_DURATION, ChronoUnit.MILLIS)</span>
+<span class="nc" id="L160">                        .toEpochMilli())</span>
+<span class="nc" id="L161">                : signedJWT.getJWTClaimsSet().getExpirationTime();</span>
+<span class="nc" id="L162">        boolean verified = signedJWT.verify(jwsVerifier);</span>
+        //        4. check if verified is false and token not expired
+<span class="nc bnc" id="L164" title="All 4 branches missed.">        if (!(verified &amp;&amp; expirationTime.after(new Date()))) {</span>
+<span class="nc" id="L165">            throw new AppException(ErrorCode.UNAUTHENTICATED);</span>
+        }
+        //        5. check if the token is not in the blacklist
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {</span>
+<span class="nc" id="L169">            throw new AppException(ErrorCode.UNAUTHENTICATED);</span>
+        }
+
+<span class="nc" id="L172">        return signedJWT;</span>
+    }
+
+    @Override
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException {
+        //      1. verify token, if token is invalid, then throw exception
+<span class="nc" id="L178">        var signToken = verifyToken(request.getToken(), true);</span>
+        //      2. get userName, jit and expiryTime from token
+<span class="nc" id="L180">        String userName = signToken.getJWTClaimsSet().getSubject();</span>
+<span class="nc" id="L181">        String jit = signToken.getJWTClaimsSet().getJWTID();</span>
+<span class="nc" id="L182">        Date expirationTime = signToken.getJWTClaimsSet().getExpirationTime();</span>
+        //      3. build invalidatedToken entity for adding token in DB
+        InvalidatedToken invalidatedToken =
+<span class="nc" id="L185">                InvalidatedToken.builder().id(jit).expiryTime(expirationTime).build();</span>
+        //      4. save invalidatedToken entity
+<span class="nc" id="L187">        invalidatedTokenRepository.save(invalidatedToken);</span>
+        //      5. Generate token
+<span class="nc" id="L189">        User user = userRepository.findByUserName(userName).orElseThrow(() -&gt; new AppException(USER_NOT_FOUND));</span>
+<span class="nc" id="L190">        String newToken = generateToken(user);</span>
+<span class="nc" id="L191">        return AuthenticationResponse.builder()</span>
+<span class="nc" id="L192">                .token(newToken)</span>
+<span class="nc" id="L193">                .authenticated(true)</span>
+<span class="nc" id="L194">                .build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
