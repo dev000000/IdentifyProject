@@ -22,7 +22,12 @@ function LoginIndex() {
   const navigate = useNavigate();
   const { isAuthenticated, login, logout } = useAuth();
   useEffect(() => {
-    const checkTokenExist = async () => {
+    // anonymous function : ham an danh 
+    // async () => { .... }
+    // ( async () => {.....} ) declaration => expression
+    // ( async () => { ..... })() goi
+    // IIFE (Immediately Invoked Function Expression) : Ham tu goi ngay lap tuc
+    (async () => {
       if (!isAuthenticated) return null;
       const token = getToken();
       if (token) {
@@ -36,8 +41,7 @@ function LoginIndex() {
           navigate("/login");
         }
       }
-    };
-    checkTokenExist();
+    })();
   }, []);
 
   const Login = async (userObject) => {
