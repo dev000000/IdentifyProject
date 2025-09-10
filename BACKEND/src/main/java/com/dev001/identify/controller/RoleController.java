@@ -24,7 +24,7 @@ public class RoleController {
     public ApiResponse<List<RoleResponse>> getRoles() {
         return ApiResponse.<List<RoleResponse>>builder()
                 .code(1000)
-                .data(roleService.getAllRoles())
+                .result(roleService.getAllRoles())
                 .build();
     }
 
@@ -32,7 +32,7 @@ public class RoleController {
     public ApiResponse<RoleResponse> createRole(@RequestBody RoleRequest request) {
         return ApiResponse.<RoleResponse>builder()
                 .code(1000)
-                .data(roleService.createRole(request))
+                .result(roleService.createRole(request))
                 .build();
     }
 

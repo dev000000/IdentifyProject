@@ -36,7 +36,7 @@ public class UserController {
         //      spotless:off
                 return ApiResponse.<List<UserResponse>>builder()
                             .code(1000)
-                            .data(userService.getAllUsers())
+                            .result(userService.getAllUsers())
                         .build();
         //      spotless:on
     }
@@ -46,7 +46,7 @@ public class UserController {
         log.info("User Controller . createUser");
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
-                .data(userService.createUser(request))
+                .result(userService.createUser(request))
                 .build();
     }
 
@@ -54,7 +54,7 @@ public class UserController {
     public ApiResponse<UserResponse> getUser(@PathVariable String id) {
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
-                .data(userService.getUserDetail(id))
+                .result(userService.getUserDetail(id))
                 .build();
     }
 
@@ -62,7 +62,7 @@ public class UserController {
     public ApiResponse<UserResponse> getMyProfile() {
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
-                .data(userService.getMyProfile())
+                .result(userService.getMyProfile())
                 .build();
     }
 
@@ -70,7 +70,7 @@ public class UserController {
     public ApiResponse<UserResponse> updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
-                .data(userService.updateUser(id, request))
+                .result(userService.updateUser(id, request))
                 .build();
     }
 
