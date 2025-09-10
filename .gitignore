@@ -37,9 +37,9 @@
 ############################
 # Node.js / Frontend (Vite)
 ############################
-/identify/FRONTEND/node_modules/
-/identify/FRONTEND/dist/
-/identify/FRONTEND/dist-ssr/
+node_modules/
+dist/
+dist-ssr/
 
 # Logs
 /identify/FRONTEND/logs

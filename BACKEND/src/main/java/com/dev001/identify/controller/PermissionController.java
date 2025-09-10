@@ -24,7 +24,7 @@ public class PermissionController {
     public ApiResponse<List<PermissionResponse>> getPermissions() {
         return ApiResponse.<List<PermissionResponse>>builder()
                 .code(1000)
-                .data(permissionService.getAllPermissions())
+                .result(permissionService.getAllPermissions())
                 .build();
     }
 
@@ -32,7 +32,7 @@ public class PermissionController {
     public ApiResponse<PermissionResponse> createPermission(@RequestBody PermissionRequest request) {
         return ApiResponse.<PermissionResponse>builder()
                 .code(1000)
-                .data(permissionService.createPermission(request))
+                .result(permissionService.createPermission(request))
                 .build();
     }
 

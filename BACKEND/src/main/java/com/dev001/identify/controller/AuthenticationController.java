@@ -32,7 +32,7 @@ public class AuthenticationController {
         AuthenticationResponse response = authenticationService.authenticate(request);
         return ApiResponse.<AuthenticationResponse>builder()
                 .code(1000)
-                .data(response)
+                .result(response)
                 .build();
     }
 
@@ -43,7 +43,7 @@ public class AuthenticationController {
         IntrospectResponse response = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .code(1000)
-                .data(response)
+                .result(response)
                 .build();
     }
 
@@ -59,7 +59,7 @@ public class AuthenticationController {
         AuthenticationResponse response = authenticationService.refreshToken(request);
         return ApiResponse.<AuthenticationResponse>builder()
                 .code(1000)
-                .data(response)
+                .result(response)
                 .build();
     }
 }
