@@ -146,8 +146,6 @@ function LoginIndex() {
                 <ReusableTextField
                   label="Username"
                   name="userName"
-                  // fullWidth
-                  // margin="normal"
                 />
                 <ReusableTextField
                   label="Password"
