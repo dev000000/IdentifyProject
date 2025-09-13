@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import {
   Button,
@@ -6,20 +6,78 @@ import {
   IconButton,
   InputAdornment,
   Paper,
-  TextField,
   Typography,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import CustomizedCheckbox from "../common/CustomizedCheckBox";
-import { Link } from "react-router-dom";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { Link, useNavigate } from "react-router-dom";
+import { Form, Formik } from "formik";
+import ReusableTextField from "../common/ReusableTextField";
+import ReusableDateTimePicker from "../common/ReusableDateTimePicker";
+import { signUp } from "./SignUpService";
+import { DATA_CODE } from "../../dataCode";
+import * as Yup from "yup";
+import { isBefore, startOfDay, subYears } from "date-fns";
+
+// validation schema
+const validationSchema = Yup.object({
+  firstName: Yup.string().required("Không được để trống"),
+  lastName: Yup.string().required("Không được để trống"),
+  userName: Yup.string()
+    .required("Không được để trống")
+    .min(10, "Tên đăng nhập nằm trong khoảng 10-20 ký tự")
+    .max(20, "Tên đăng nhập nằm trong khoảng 10-20 ký tự"),
+  dob: Yup.date().required("Không được để trống").test(
+    "dob",
+    "Bạn phải từ 10 tuổi để đăng ký",
+    (value) => {
+      if(!value) return false;
+      const minDate = startOfDay(subYears(new Date(), 10));
+      const dob = startOfDay(value);
+      return isBefore(dob, minDate) || dob.getTime() === minDate.getTime();
+    }
+  ),
+  passWord: Yup.string()
+    .required("Không được để trống")
+    .min(10, "Mật khẩu nằm trong khoảng 10-20 ký tự")
+    .max(20, "Mật khẩu nằm trong khoảng 10-20 ký tự"),
+  confirmPassword: Yup.string()
+    .required("Không được để trống")
+    .oneOf([Yup.ref("passWord"), null], "Mật khẩu không khớp"),
+});
 
 function SignUpIndex() {
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [value, setValue] = React.useState(dayjs("2022-04-07"));
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    (async () => {})();
+    return () => {
+      // cleanup
+    };
+  }, []);
+
+  // handle sign up
+  const handleSignUp = async (values) => {
+    const newValues = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      userName: values.userName,
+      dob: values.dob,
+      passWord: values.passWord,
+    };
+    try {
+      const response = await signUp(newValues);
+      if (response.data.code === DATA_CODE.OK) {
+        alert("Sign Up Successfully");
+        navigate("/login");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
   return (
     <Box
       sx={{
@@ -41,203 +99,191 @@ function SignUpIndex() {
           overflowY: "auto",
         }}
       >
+        {/* Section Logo */}
         <Box
           component="img"
           src="/images/Logo.png"
           alt="Logo"
           sx={{ width: "168px", height: "92px", mt: "31px" }}
         />
+        {/* Section Text Under Logo */}
         <Typography variant="h3">Create an Account</Typography>
         <Typography sx={{ color: "text.ten" }}>
           Sign up now to get started with an account.
         </Typography>
-        <Box
-          sx={{
-            mx: 3,
-            height: "50vh",
-            width: "calc(100% - 56px)",
-            mt: 3,
-            gap: 2,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Button
-            variant="outlined"
-            sx={{
-              width: "100%",
-              p: 2,
-              textTransform: "none",
-              border: "text.twelve",
+        <Box sx={{ width: "100%" }}>
+          <Formik
+            initialValues={{
+              firstName: "",
+              lastName: "",
+              userName: "",
+              dob: "",
+              passWord: "",
+              confirmPassword: "",
+            }}
+            validationSchema={validationSchema}
+            onSubmit={(values) => {
+              handleSignUp(values);
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Form autoComplete="off">
               <Box
-                component="img"
-                src="/images/Google__G__Logo 1.png"
-                alt="Logo"
-                sx={{ width: "19px", height: "19px", mr: "20px" }}
-              />
-              <Typography
-                sx={{ fontSize: "16px", fontWeight: 600, color: "text.four" }}
-              >
-                Sign up with Google
-              </Typography>
-            </Box>
-          </Button>
-          <Divider
-            sx={{ fontSize: "14px", fontWeight: 400, color: "text.six" }}
-          >
-            OR
-          </Divider>
-          <TextField
-            label="First Name"
-            name="firstName"
-            // value={values.email}
-            // onChange={handleChange}
-            // error={Boolean(errors.email)}
-            // helperText={errors.email}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Last Name"
-            name="lastName"
-            // value={values.email}
-            // onChange={handleChange}
-            // error={Boolean(errors.email)}
-            // helperText={errors.email}
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Username"
-            name="userName"
-            // value={values.email}
-            // onChange={handleChange}
-            // error={Boolean(errors.email)}
-            // helperText={errors.email}
-            fullWidth
-            margin="normal"
-          />
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              disableFuture
-              label="Date of Birth"
-              name="dob"
-              openTo="year"
-              views={["year", "month", "day"]}
-              value={value}
-              onChange={(newValue) => {
-                setValue(newValue);
-              }}
-              renderInput={(params) => <TextField {...params} />}
-            />
-          </LocalizationProvider>
-
-          <TextField
-            label="Password"
-            name="password"
-            // type={showPassword ? "text" : "password"}
-            // value={values.password}
-            // onChange={handleChange}
-            // error={Boolean(errors.password)}
-            // helperText={errors.password}
-            fullWidth
-            margin="normal"
-            autoComplete="current-password"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword((s) => !s)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            label="Confirm Password"
-            name="confirmPassword"
-            // type={showPassword ? "text" : "password"}
-            // value={values.password}
-            // onChange={handleChange}
-            // error={Boolean(errors.password)}
-            // helperText={errors.password}
-            fullWidth
-            margin="normal"
-            autoComplete="current-password"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword((s) => !s)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <CustomizedCheckbox
-              defaultChecked
-              sx={{ "&.MuiCheckbox-root": { p: 0 }, mr: 1 }}
-            />
-            <Box sx={{ display: "flex", justifyContent: "center", gap: "2px" }}>
-              <Typography sx={{ color: "", fontSize: "13px" }}>
-                I have read and agree to
-              </Typography>
-              <Typography
                 sx={{
-                  color: "text.three",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  "&:hover": { textDecoration: "underline" },
+                  mx: 3,
+                  width: "calc(100% - 56px)",
+                  mt: 3,
+                  gap: 2,
+                  display: "flex",
+                  flexDirection: "column",
                 }}
-                component={Link}
-                to={"/term-of-service"}
               >
-                Terms of Service
-              </Typography>
-            </Box>
-          </Box>
-          <Button
-            variant="contained"
-            sx={{
-              p: 2,
-              textTransform: "none",
-              color: "text.five",
-              bgcolor: "text.three",
-              fontSize: "16px",
-              fontWeight: 600,
-            }}
-          >
-            Get Started
-          </Button>
-          <Box sx={{ display: "flex", justifyContent: "center", gap: "2px", pb: 2 }}>
-            <Typography sx={{ color: "", fontSize: "13px" }}>
-              Already have an account?
-            </Typography>
-            <Typography
-              sx={{
-                color: "text.three",
-                fontSize: "13px",
-                fontWeight: 600,
-                textDecoration: "none",
-                "&:hover": { textDecoration: "underline" },
-              }}
-              component={Link}
-              to={"/login"}
-            >
-              Login
-            </Typography>
-          </Box>
+                <Button
+                  variant="outlined"
+                  sx={{
+                    width: "100%",
+                    p: 2,
+                    textTransform: "none",
+                    border: "text.twelve",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Box
+                      component="img"
+                      src="/images/Google__G__Logo 1.png"
+                      alt="Logo"
+                      sx={{ width: "19px", height: "19px", mr: "20px" }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "16px",
+                        fontWeight: 600,
+                        color: "text.four",
+                      }}
+                    >
+                      Sign up with Google
+                    </Typography>
+                  </Box>
+                </Button>
+                <Divider
+                  sx={{ fontSize: "14px", fontWeight: 400, color: "text.six" }}
+                >
+                  OR
+                </Divider>
+                <ReusableTextField label="First Name" name="firstName" />
+                <ReusableTextField label="Last Name" name="lastName" />
+                <ReusableTextField label="Username" name="userName" />
+                <ReusableDateTimePicker label="Date of Birth" name="dob" />
+
+                <ReusableTextField
+                  label="Password"
+                  name="passWord"
+                  type={showPassword ? "text" : "password"}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword((s) => !s)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <ReusableTextField
+                  label="Confirm Password"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowConfirmPassword((s) => !s)}
+                          edge="end"
+                        >
+                          {showConfirmPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <CustomizedCheckbox
+                    defaultChecked
+                    sx={{ "&.MuiCheckbox-root": { p: 0 }, mr: 1 }}
+                  />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: "2px",
+                    }}
+                  >
+                    <Typography sx={{ color: "", fontSize: "13px" }}>
+                      I have read and agree to
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: "text.three",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                      component={Link}
+                      to={"/term-of-service"}
+                    >
+                      Terms of Service
+                    </Typography>
+                  </Box>
+                </Box>
+                <Button
+                  variant="contained"
+                  sx={{
+                    p: 2,
+                    textTransform: "none",
+                    color: "text.five",
+                    bgcolor: "text.three",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                  }}
+                  type="submit"
+                >
+                  Get Started
+                </Button>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: "2px",
+                    pb: 2,
+                  }}
+                >
+                  <Typography sx={{ color: "", fontSize: "13px" }}>
+                    Already have an account?
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "text.three",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      textDecoration: "none",
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                    component={Link}
+                    to={"/login"}
+                  >
+                    Login
+                  </Typography>
+                </Box>
+              </Box>
+            </Form>
+          </Formik>
         </Box>
       </Paper>
     </Box>

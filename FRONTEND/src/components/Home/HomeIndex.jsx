@@ -3,17 +3,11 @@ import { useEffect, useState } from "react";
 import HeaderIndex from "../Header/HeaderIndex";
 import Box from "@mui/material/Box";
 import {
-  Button,
   Divider,
-  IconButton,
-  InputAdornment,
   Paper,
   TextField,
   Typography,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import CustomizedCheckbox from "../common/CustomizedCheckBox";
-import { Link } from "react-router-dom";
 import { getMyProfile } from "./HomeService";
 
 function HomeIndex() {
@@ -81,10 +75,6 @@ function HomeIndex() {
                 label="Username"
                 name="userName"
                 value={userDetail.userName}
-                // value={values.email}
-                // onChange={handleChange}
-                // error={Boolean(errors.email)}
-                // helperText={errors.email}
                 fullWidth
                 margin="normal"
               />
