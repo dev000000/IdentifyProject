@@ -42,7 +42,7 @@ function LoginIndex() {
         }
       }
     })();
-  }, []);
+  }, [isAuthenticated, navigate, logout]);
 
   const Login = async (userObject) => {
     try {
