@@ -7,6 +7,7 @@ const AuthContext = createContext();
 // export function useAuth , this return AuContext
 export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
+  // throw new Error("An error has occurred in AuthProvider component");
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return getAuthenticated() === "true" ;
   });

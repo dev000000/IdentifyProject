@@ -21,6 +21,8 @@ function LoginIndex() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, login, logout } = useAuth();
+  // throw Error here and ErrorBoundary of react-router-dom will catch it
+  // throw new Error("An error has occurred in LoginIndex component");
   useEffect(() => {
     // anonymous function : ham an danh 
     // async () => { .... }
@@ -34,7 +36,7 @@ function LoginIndex() {
         try {
           const response = await checkToken({ token });
           console.log(response);
-          navigate("/");
+          navigate("/home-inside");
         } catch (error) {
           console.log(error);
           logout();
@@ -45,9 +47,10 @@ function LoginIndex() {
   }, [isAuthenticated, navigate, logout]);
 
   const Login = async (userObject) => {
+    // error in event handler (onClick, onSubmit, onChange,...) will not be caught by ErrorBoundary
+    // throw new Error("An error has occurred in Login function");
     try {
       const response = await loginWithUserAndPass(userObject);
-
       console.log(response);
       console.log(response.data.code);
       console.log(response.data.result);
