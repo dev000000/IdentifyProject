@@ -7,22 +7,23 @@ import ProtectedRoute from "./ProtectedRoute";
 import ErrorPage from "../components/error/ErrorPage";
 import PageNotFound from "../components/error/PageNotFound";
 import HomeInside from "../components/HomeInside/HomeInsideIndex";
+import ErrorPageNew from "../components/error/ErrorPageNew";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
-    errorElement: <ErrorPage />,
+    errorElement: <ErrorPageNew />,
   },
   {
     path: "/login",
     element: <Login />,
-    errorElement: <ErrorPage />,
+    errorElement: <ErrorPageNew />,
   },
   {
     path: "/sign-up",
     element: <SignUp />,
-    errorElement: <ErrorPage />,
+    errorElement: <ErrorPageNew />,
   },
   {
     path: "/home-inside",
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
         <HomeInside/>
       </ProtectedRoute>
     ),
-    errorElement: <ErrorPage />,
+    errorElement: <ErrorPageNew />,
   },
   {
     path: "*",

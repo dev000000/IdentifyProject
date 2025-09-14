@@ -5,7 +5,9 @@ import App from "./App.jsx";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { AuthProvider } from "./auth/AuthContext.jsx";
-import ErrorBoundary from "./errorHandling/ErrorBoundary.jsx";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorPageNew from "./components/error/ErrorPageNew.jsx";
+// import ErrorBoundary from "./errorHandling/ErrorBoundary.jsx";
 const theme = createTheme({
   palette: {
     primary: {
@@ -57,7 +59,7 @@ const theme = createTheme({
 });
 createRoot(document.getElementById("root")).render(
   // <StrictMode>
-  <ErrorBoundary>
+  <ErrorBoundary FallbackComponent={ErrorPageNew}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
