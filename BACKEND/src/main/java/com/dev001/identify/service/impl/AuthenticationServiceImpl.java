@@ -48,11 +48,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private PasswordEncoder bCryptPasswordEncoder;
 
-    @Value("${jwt.signerKey}")
-    protected String SIGNER_KEY;
+    @Value("${jwt.refresh-token-key}")
+    protected String REFRESH_TOKEN_KEY;
 
-    @Value("${jwt.valid-duration}")
-    protected Long VALID_DURATION;
+    @Value("${jwt.access-token-key}")
+    protected String ACCESS_TOKEN_KEY;
+
+    @Value("${jwt.access-valid-duration}")
+    protected Long ACCESS_VALID_DURATION;
 
     @Value("${jwt.refresh-valid-duration}")
     protected Long REFRESH_VALID_DURATION;
@@ -69,30 +72,48 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         //        3. Generate token
-        String token = generateToken(user);
-        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+        String token = generateToken(user, true);
+        String refreshToken = generateToken(user, false);
+        return AuthenticationResponse.builder().accessToken(token).refreshToken(refreshToken).authenticated(true).build();
     }
 
     @Override
-    public String generateToken(User user) {
+    public String generateToken(User user, Boolean isAccessToken ) {
         //      1. create header
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         //      2. create jwt claims set for payload
-        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUserName())
-                .issuer("https://github.com/DEV00000001") // don vi phat hanh token
-                .issueTime(new Date())
-                .expirationTime(new Date(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.MILLIS).toEpochMilli()))
-                .claim("scope", buildScope(user))
-                .jwtID(UUID.randomUUID().toString())
-                .build();
+        JWTClaimsSet jwtClaimsSet;
+        if(Boolean.TRUE.equals(isAccessToken) ) {
+            jwtClaimsSet = new JWTClaimsSet.Builder()
+                    .subject(user.getUserName())
+                    .issuer("https://github.com/DEV00000001") // don vi phat hanh token
+                    .issueTime(new Date())
+                    .expirationTime(new Date(
+                            Instant.now().plus(ACCESS_VALID_DURATION, ChronoUnit.MILLIS).toEpochMilli()))
+                    .claim("scope", buildScope(user))
+                    .jwtID(UUID.randomUUID().toString())
+                    .build();
+        }else {
+            jwtClaimsSet = new JWTClaimsSet.Builder()
+                    .subject(user.getUserName())
+                    .issuer("https://github.com/DEV00000001") // don vi phat hanh token
+                    .issueTime(new Date())
+                    .expirationTime(new Date(
+                            Instant.now().plus(REFRESH_VALID_DURATION, ChronoUnit.MILLIS).toEpochMilli()))
+                    .claim("scope", buildScope(user))
+                    .jwtID(UUID.randomUUID().toString())
+                    .build();
+        }
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
         //        3. create jwsObject for signing
         JWSObject jwsObject = new JWSObject(jwsHeader, payload);
         try {
-            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            if(Boolean.TRUE.equals(isAccessToken) ) {
+                jwsObject.sign(new MACSigner(ACCESS_TOKEN_KEY.getBytes()));
+            }else {
+                jwsObject.sign(new MACSigner(REFRESH_TOKEN_KEY.getBytes()));
+            }
             return jwsObject.serialize();
         } catch (JOSEException e) {
             log.error("Error while generating token", e);
@@ -147,18 +168,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public SignedJWT verifyToken(String token, Boolean isRefresh) throws ParseException, JOSEException {
         //        1. create JWSVerifier for verifying signature
-        JWSVerifier jwsVerifier = new MACVerifier(SIGNER_KEY.getBytes());
+
+        JWSVerifier jwsVerifier = isRefresh ? new MACVerifier(REFRESH_TOKEN_KEY.getBytes()) : new MACVerifier(ACCESS_TOKEN_KEY.getBytes());
         //        2. parse token into SignedJWT
         SignedJWT signedJWT = SignedJWT.parse(token);
         //        3. get ExpirationTime and verify signature
-        Date expirationTime = isRefresh
-                ? new Date(signedJWT
-                        .getJWTClaimsSet()
-                        .getIssueTime()
-                        .toInstant()
-                        .plus(REFRESH_VALID_DURATION, ChronoUnit.MILLIS)
-                        .toEpochMilli())
-                : signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
         boolean verified = signedJWT.verify(jwsVerifier);
         //        4. check if verified is false and token not expired
         if (!(verified && expirationTime.after(new Date()))) {
@@ -175,7 +190,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException {
         //      1. verify token, if token is invalid, then throw exception
-        var signToken = verifyToken(request.getToken(), true);
+        var signToken = verifyToken(request.getRefreshToken(), true);
         //      2. get userName, jit and expiryTime from token
         String userName = signToken.getJWTClaimsSet().getSubject();
         String jit = signToken.getJWTClaimsSet().getJWTID();
@@ -187,9 +202,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         invalidatedTokenRepository.save(invalidatedToken);
         //      5. Generate token
         User user = userRepository.findByUserName(userName).orElseThrow(() -> new AppException(USER_NOT_FOUND));
-        String newToken = generateToken(user);
+        String newAccessToken = generateToken(user, true);
+        String newRefreshToken = generateToken(user, false);
         return AuthenticationResponse.builder()
-                .token(newToken)
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
                 .authenticated(true)
                 .build();
     }

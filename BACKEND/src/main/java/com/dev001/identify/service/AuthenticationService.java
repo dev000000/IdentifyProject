@@ -15,7 +15,7 @@ import com.nimbusds.jwt.SignedJWT;
 public interface AuthenticationService {
     AuthenticationResponse authenticate(AuthenticationRequest request);
 
-    String generateToken(User user);
+    String generateToken(User user, Boolean isAccessToken);
 
     IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException;
 
