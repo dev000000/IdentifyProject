@@ -15,7 +15,6 @@ import ReusableTextField from "../common/ReusableTextField";
 import { Form, Formik } from "formik";
 import { checkToken, loginWithUserAndPass } from "./LoginService";
 import { useAuth } from "../../auth/AuthContext";
-import { getToken } from "../../services/localStorageService";
 import { toast } from "react-toastify";
 
 function LoginIndex() {
@@ -34,30 +33,26 @@ function LoginIndex() {
       if (!isAuthenticated) return null;
       const token = getToken();
       if (token) {
-        try {
-          const response = await checkToken({ token });
-          console.log(response);
-          navigate("/home-inside");
-        } catch (error) {
-          console.log(error);
+        // handle error in interceptor of authorizedAxiosInstance => no need try catch here
+        await checkToken({ token });
+        navigate("/home-inside");
+      } else {
           logout();
           navigate("/login");
-        }
       }
     })();
+    return () => {
+      // cleanup
+    };
   }, [isAuthenticated, navigate, logout]);
 
   const Login = async (userObject) => {
     // error in event handler (onClick, onSubmit, onChange,...) will not be caught by ErrorBoundary
     // throw new Error("An error has occurred in Login function");
-    try {
       const response = await loginWithUserAndPass(userObject);
-      login(response.data.result.token);
-      navigate("/");
+      login(response.data?.result?.accessToken, response.data?.result?.refreshToken);
+      navigate("/home-inside");
       toast.success("Login successfully");
-    } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
-    }
   };
   return (
     <Box

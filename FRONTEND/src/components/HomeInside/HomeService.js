@@ -1,15 +1,14 @@
-import axios from "axios";
+import authorizedAxiosInstance from "../../utils/authorizedAxiosInstance";
 import ConstaintList from "../../configurations/appConfig";
-import { getToken } from "../../services/localStorageService";
+import { getAccessToken } from "../../services/localStorageService";
 const API_PATH = ConstaintList.API_ENDPOINT + "/api/v1/users";
 
 export const getMyProfile = () => {
-  const token = getToken();
+  const accessTokentoken = getAccessToken();
   var url = API_PATH + "/my-profile";
-  return axios.get(url, {
+  return authorizedAxiosInstance.get(url, {
     headers: {
-      Authorization: `Bearer ${token}`,
-    }
-  }
-  );
-}
+      Authorization: `Bearer ${accessTokentoken}`,
+    },
+  });
+};
