@@ -18,6 +18,7 @@ import { signUp } from "./SignUpService";
 import { DATA_CODE } from "../../dataCode";
 import * as Yup from "yup";
 import { isBefore, startOfDay, subYears } from "date-fns";
+import { toast } from "react-toastify";
 
 // validation schema
 const validationSchema = Yup.object({
@@ -70,11 +71,11 @@ function SignUpIndex() {
     try {
       const response = await signUp(newValues);
       if (response.data.code === DATA_CODE.OK) {
-        alert("Sign Up Successfully");
+        toast.success("Sign Up Successfully");
         navigate("/login");
       }
     } catch (error) {
-      console.log(error);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
   

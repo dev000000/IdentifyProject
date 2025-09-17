@@ -9,20 +9,22 @@ import {
   Typography,
 } from "@mui/material";
 import { getMyProfile } from "./HomeService";
+import { toast } from "react-toastify";
 
 function HomeInsideIndex() {
   const [userDetail, setUserDetails] = useState({});
   useEffect(() => {
-    const getUserDetails = async () => {
+
+    (async () => {
       try {
         const response = await getMyProfile();
+        toast.success("Fetch user details successfully");
         setUserDetails(response.data.result);
-        console.log(response.data.result);
       } catch (error) {
-        console.error("Error fetching user details:", error);
+        toast.error("Error fetching user details");
       }
-    };
-    getUserDetails();
+    })();
+    
   }, []);
   return (
     <>

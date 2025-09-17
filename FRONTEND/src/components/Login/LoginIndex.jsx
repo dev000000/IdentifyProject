@@ -16,6 +16,7 @@ import { Form, Formik } from "formik";
 import { checkToken, loginWithUserAndPass } from "./LoginService";
 import { useAuth } from "../../auth/AuthContext";
 import { getToken } from "../../services/localStorageService";
+import { toast } from "react-toastify";
 
 function LoginIndex() {
   const [showPassword, setShowPassword] = useState(false);
@@ -51,14 +52,11 @@ function LoginIndex() {
     // throw new Error("An error has occurred in Login function");
     try {
       const response = await loginWithUserAndPass(userObject);
-      console.log(response);
-      console.log(response.data.code);
-      console.log(response.data.result);
       login(response.data.result.token);
       navigate("/");
+      toast.success("Login successfully");
     } catch (error) {
-      console.log(error.response.response.code);
-      console.log(error.response.response.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
   return (
