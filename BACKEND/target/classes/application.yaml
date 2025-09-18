@@ -21,5 +21,5 @@ spring:
 jwt:
   refresh-token-key: "7RNUqJlIkY3IuGxPKbC7GoGDW40BdtEviJxdjqXSCqrptnnqC98+hyRUB87BxzQG"
   access-token-key: "ZeroJdXEgYS9h2Qt2WuiMmNUquk5X1w++iX+4SCI2ZmTHK9Htuz6OmsDDkq1huB8"
-  access-valid-duration: 3600000 #in milliseconds, 1000 milliseconds = 1 second, 1h
+  access-valid-duration: 5000 #in milliseconds, 1000 milliseconds = 1 second, 1h
   refresh-valid-duration: 1209600000 #in milliseconds, 14 days

@@ -1,4 +1,4 @@
-import { getAuthenticated, removeRefreshToken, setAccessToken, setAuthenticated, setRefreshToken } from "../services/localStorageService";
+import { getAuthenticated, removeAccessToken, removeRefreshToken, setAccessToken, setAuthenticated, setRefreshToken } from "../services/localStorageService";
 import { createContext, useContext, useState } from "react";
 
 // create new context
@@ -18,10 +18,11 @@ export const AuthProvider = ({ children }) => {
     setRefreshToken(refreshToken);
   }
   const logout = () => {
-    setIsAuthenticated(false);
-    setAuthenticated(false);
     removeAccessToken();
     removeRefreshToken();
+    setAuthenticated(false);
+    setIsAuthenticated(false);
+    
   }
   return (
     <AuthContext.Provider value={{isAuthenticated, login, logout}}>

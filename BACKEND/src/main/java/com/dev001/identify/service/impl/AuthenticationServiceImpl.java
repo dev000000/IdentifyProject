@@ -176,7 +176,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
         boolean verified = signedJWT.verify(jwsVerifier);
         //        4. check if verified is false and token not expired
-        if (!(verified && expirationTime.after(new Date()))) {
+        if ( !verified && expirationTime.after(new Date()) ) {
+        //        4.1 if token is access token , check token is expired , then return error code : 410 GONE . cilent will try refresh token
+            if(!isRefresh && expirationTime.after(new Date())) {
+                throw new AppException(ErrorCode.ACCESS_TOKEN_EXPIRED);
+            }
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         //        5. check if the token is not in the blacklist
