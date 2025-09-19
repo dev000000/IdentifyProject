@@ -46,6 +46,9 @@ authorizedAxiosInstance.interceptors.response.use(function onFulfilled(response)
     // Do something with response error
     // hanle error globally here : show toast error message for every Api call
     // do not show toast if status is 410 (GONE) , 410 serve automatically refresh token when access token expired
+    if(error.response?.status === 410) {
+      console.log("Token expired, need refresh token");
+    }
 
     if(error.response?.status !== 410) {
       toast.error(error.response?.data?.message || error.message);
