@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import com.dev001.identify.enums.Role;
 
 @Data
 @Builder
@@ -18,10 +19,10 @@ import lombok.experimental.FieldDefaults;
 public class UserCreationRequest {
 
     @Size(min = 10, max = 20, message = "USERNAME_INVALID")
-    String userName;
+    String username;
 
     @Size(min = 10, max = 20, message = "PASSWORD_INVALID")
-    String passWord;
+    String password;
 
     String firstName;
     String lastName;
@@ -29,4 +30,7 @@ public class UserCreationRequest {
     @NotNull(message = "DOB_INVALID")
     @DobConstraint(min = 10, message = "DOB_INVALID")
     LocalDate dob;
+
+    // for test
+    Role role;
 }

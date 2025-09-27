@@ -2,7 +2,6 @@ package com.dev001.identify.controller;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import com.dev001.identify.dto.request.RoleRequest;
@@ -10,6 +9,7 @@ import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.dto.response.RoleResponse;
 import com.dev001.identify.service.RoleService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

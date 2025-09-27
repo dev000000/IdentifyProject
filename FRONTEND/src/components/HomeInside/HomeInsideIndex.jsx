@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import HeaderIndex from "../Header/HeaderIndex";
 import Box from "@mui/material/Box";
 import { Divider, Paper, TextField, Typography } from "@mui/material";
-import { getMyProfile } from "./HomeService";
 import { toast } from "react-toastify";
+import { getMyProfile } from "../Login/LoginService";
 
 function HomeInsideIndex() {
   const [userDetail, setUserDetails] = useState({});

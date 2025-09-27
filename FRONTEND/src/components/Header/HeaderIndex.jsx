@@ -50,8 +50,8 @@ function HeaderIndex() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-  const handleLogOut = () => {
-    logout();
+  const handleLogOut = async () => {
+    await logout();
     navigate("/login");
   }
 
@@ -143,7 +143,7 @@ function HeaderIndex() {
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
               {pages.map((page) => (
                 <Button
-                  key={page}
+                  key={page.text}
                   onClick={handleCloseNavMenu}
                   sx={{ my: 2, color: "white", display: "block" }}
                   component="a"

@@ -2,32 +2,43 @@ package com.dev001.identify.configuration;
 
 import java.io.IOException;
 
+import com.dev001.identify.exception.TokenExpiredException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-
 import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(
             HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
-        ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
+
+        ErrorCode errorCode;
+
+        errorCode = ErrorCode.UNAUTHENTICATED; // 401
+        String code = (String) request.getAttribute("auth.error.code");
+        log.error("code:{}",code);
+        if ("ACCESS_TOKEN_EXPIRED".equals(code)) { // do bạn ném từ filter khi detect ExpiredJwtException
+            log.error("Token expired entrypoint");
+            errorCode = ErrorCode.ACCESS_TOKEN_EXPIRED;
+        }
         response.setStatus(errorCode.getStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setHeader("WWW-Authenticate", "Bearer error=\"invalid_token\", error_description=\"expired\"");
         ApiResponse<?> apiResponse = ApiResponse.builder()
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())
                 .build();
         ObjectMapper objectMapper = new ObjectMapper();
-
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
         response.flushBuffer();
     }

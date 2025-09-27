@@ -14,17 +14,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { Form, Formik } from "formik";
 import ReusableTextField from "../common/ReusableTextField";
 import ReusableDateTimePicker from "../common/ReusableDateTimePicker";
-import { signUp } from "./SignUpService";
 import { DATA_CODE } from "../../dataCode";
 import * as Yup from "yup";
 import { isBefore, startOfDay, subYears } from "date-fns";
 import { toast } from "react-toastify";
+import { signUp } from "../Login/LoginService";
 
 // validation schema
 const validationSchema = Yup.object({
   firstName: Yup.string().required("Không được để trống"),
   lastName: Yup.string().required("Không được để trống"),
-  userName: Yup.string()
+  username: Yup.string()
     .required("Không được để trống")
     .min(10, "Tên đăng nhập nằm trong khoảng 10-20 ký tự")
     .max(20, "Tên đăng nhập nằm trong khoảng 10-20 ký tự"),
@@ -36,13 +36,13 @@ const validationSchema = Yup.object({
       const dob = startOfDay(value);
       return isBefore(dob, minDate) || dob.getTime() === minDate.getTime();
     }),
-  passWord: Yup.string()
+  password: Yup.string()
     .required("Không được để trống")
     .min(10, "Mật khẩu nằm trong khoảng 10-20 ký tự")
     .max(20, "Mật khẩu nằm trong khoảng 10-20 ký tự"),
   confirmPassword: Yup.string()
     .required("Không được để trống")
-    .oneOf([Yup.ref("passWord"), null], "Mật khẩu không khớp"),
+    .oneOf([Yup.ref("password"), null], "Mật khẩu không khớp"),
 });
 
 function SignUpIndex() {
@@ -55,9 +55,9 @@ function SignUpIndex() {
     const newValues = {
       firstName: values.firstName,
       lastName: values.lastName,
-      userName: values.userName,
+      username: values.username,
       dob: values.dob,
-      passWord: values.passWord,
+      password: values.password,
     };
     // handle error in interceptor of authorizedAxiosInstance => no need try catch here
     const response = await signUp(newValues);
@@ -105,9 +105,9 @@ function SignUpIndex() {
             initialValues={{
               firstName: "",
               lastName: "",
-              userName: "",
+              username: "",
               dob: "",
-              passWord: "",
+              password: "",
               confirmPassword: "",
             }}
             validationSchema={validationSchema}
@@ -160,12 +160,12 @@ function SignUpIndex() {
                 </Divider>
                 <ReusableTextField label="First Name" name="firstName" />
                 <ReusableTextField label="Last Name" name="lastName" />
-                <ReusableTextField label="Username" name="userName" />
+                <ReusableTextField label="username" name="username" />
                 <ReusableDateTimePicker label="Date of Birth" name="dob" />
 
                 <ReusableTextField
                   label="Password"
-                  name="passWord"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   InputProps={{
                     endAdornment: (

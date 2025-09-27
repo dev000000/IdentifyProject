@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateRequest {
-    String passWord;
+    String password;
     String firstName;
     String lastName;
     LocalDate dob;

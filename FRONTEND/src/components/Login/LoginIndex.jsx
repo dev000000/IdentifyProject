@@ -141,11 +141,11 @@ function LoginIndex() {
                 </Divider>
                 <ReusableTextField
                   label="Username"
-                  name="userName"
+                  name="username"
                 />
                 <ReusableTextField
                   label="Password"
-                  name="passWord"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   InputProps={{
