@@ -7,6 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { AuthProvider } from "./auth/AuthContext.jsx";
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorPageNew from "./components/error/ErrorPageNew.jsx";
+import { ToastContainer } from 'react-toastify';
 // import ErrorBoundary from "./errorHandling/ErrorBoundary.jsx";
 const theme = createTheme({
   palette: {
@@ -65,6 +66,7 @@ createRoot(document.getElementById("root")).render(
       <AuthProvider>
         <App />
       </AuthProvider>
+      <ToastContainer />
     </ThemeProvider>
   </ErrorBoundary>
   // </StrictMode>

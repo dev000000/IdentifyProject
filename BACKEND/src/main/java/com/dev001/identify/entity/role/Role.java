@@ -1,8 +1,12 @@
 package com.dev001.identify.entity.role;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.dev001.identify.entity.permission.Permission;
 
@@ -25,4 +29,12 @@ public class Role {
 
     @ManyToMany
     Set<Permission> permissions;
+
+//    public List<SimpleGrantedAuthority> getAuthorities() {
+//        var authorities = getPermissions().stream()
+//                .map(permission -> new SimpleGrantedAuthority(permission.getName()))
+//                .collect(Collectors.toList());
+//        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.getName()));
+//        return authorities;
+//    }
 }

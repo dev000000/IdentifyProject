@@ -2,27 +2,22 @@ import { useEffect, useState } from "react";
 
 import HeaderIndex from "../Header/HeaderIndex";
 import Box from "@mui/material/Box";
-import {
-  Divider,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { getMyProfile } from "./HomeService";
+import { Divider, Paper, TextField, Typography } from "@mui/material";
+import { toast } from "react-toastify";
+import { getMyProfile } from "../Login/LoginService";
 
 function HomeInsideIndex() {
   const [userDetail, setUserDetails] = useState({});
   useEffect(() => {
-    const getUserDetails = async () => {
-      try {
-        const response = await getMyProfile();
-        setUserDetails(response.data.result);
-        console.log(response.data.result);
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-      }
+    // handle error in interceptor of authorizedAxiosInstance => no need try catch here
+    (async () => {
+      const response = await getMyProfile();
+      toast.success("Fetch user details successfully");
+      setUserDetails(response.data.result);
+    })();
+    return () => {
+      // cleanup
     };
-    getUserDetails();
   }, []);
   return (
     <>

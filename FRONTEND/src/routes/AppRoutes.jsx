@@ -1,13 +1,12 @@
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "../components/Login/LoginIndex";
 import Home from "../components/Home/HomeIndex";
 import SignUp from "../components/SignUp/SignUpIndex";
-import ProtectedRoute from "./ProtectedRoute";
-import ErrorPage from "../components/error/ErrorPage";
+import ProtectedRoutes from "./ProtectedRoutes";
 import PageNotFound from "../components/error/PageNotFound";
 import HomeInside from "../components/HomeInside/HomeInsideIndex";
 import ErrorPageNew from "../components/error/ErrorPageNew";
+import UnAuthorizedRoutes from "./UnAuthorizedRoutes";
 
 const router = createBrowserRouter([
   {
@@ -17,20 +16,28 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <UnAuthorizedRoutes>
+        <Login />
+      </UnAuthorizedRoutes>
+    ),
     errorElement: <ErrorPageNew />,
   },
   {
     path: "/sign-up",
-    element: <SignUp />,
+    element: (
+      <UnAuthorizedRoutes>
+        <SignUp />
+      </UnAuthorizedRoutes>
+    ),
     errorElement: <ErrorPageNew />,
   },
   {
     path: "/home-inside",
     element: (
-      <ProtectedRoute>
-        <HomeInside/>
-      </ProtectedRoute>
+      <ProtectedRoutes>
+        <HomeInside />
+      </ProtectedRoutes>
     ),
     errorElement: <ErrorPageNew />,
   },

@@ -7,7 +7,7 @@ import com.dev001.identify.dto.request.UserUpdateRequest;
 import com.dev001.identify.dto.response.UserResponse;
 
 public interface UserService {
-    UserResponse createUser(UserCreationRequest request);
+//    UserResponse createUser(UserCreationRequest request);
 
     List<UserResponse> getAllUsers();
 

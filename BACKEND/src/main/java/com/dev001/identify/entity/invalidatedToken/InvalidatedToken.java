@@ -2,6 +2,7 @@ package com.dev001.identify.entity.invalidatedToken;
 
 import java.util.Date;
 
+import com.dev001.identify.enums.TokenType;
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -20,4 +21,7 @@ public class InvalidatedToken {
     String id;
 
     Date expiryTime;
+
+    @Enumerated(EnumType.STRING)
+    TokenType tokenType;
 }

@@ -4,8 +4,6 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +13,7 @@ import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.dto.response.UserResponse;
 import com.dev001.identify.service.UserService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,14 +40,13 @@ public class UserController {
         //      spotless:on
     }
 
-    @PostMapping
-    public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-        log.info("User Controller . createUser");
-        return ApiResponse.<UserResponse>builder()
-                .code(1000)
-                .result(userService.createUser(request))
-                .build();
-    }
+//    @PostMapping
+//    public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
+//        return ApiResponse.<UserResponse>builder()
+//                .code(1000)
+//                .result(userService.createUser(request))
+//                .build();
+//    }
 
     @GetMapping("/{id}")
     public ApiResponse<UserResponse> getUser(@PathVariable String id) {

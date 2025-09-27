@@ -1,13 +1,23 @@
-const KEY_TOKEN = "accessToken";
+const KEY_ACCESS_TOKEN = "accessToken";
+const KEY_REFRESH_TOKEN = "refreshToken";
 const KEY_AUTH = "isAuthenticated";
-export const setToken = (token) => {
-  localStorage.setItem(KEY_TOKEN,token);
+export const setAccessToken = (token) => {
+  localStorage.setItem(KEY_ACCESS_TOKEN,token);
 }
-export const getToken = () => {
-  return localStorage.getItem(KEY_TOKEN);
+export const setRefreshToken = (token) => {
+  localStorage.setItem(KEY_REFRESH_TOKEN,token);
 }
-export const removeToken = () => {
-  localStorage.removeItem(KEY_TOKEN);
+export const getAccessToken = () => {
+  return localStorage.getItem(KEY_ACCESS_TOKEN);
+}
+export const getRefreshToken = () => {
+  return localStorage.getItem(KEY_REFRESH_TOKEN);
+}
+export const removeAccessToken = () => {
+  localStorage.removeItem(KEY_ACCESS_TOKEN);
+}
+export const removeRefreshToken = () => {
+  localStorage.removeItem(KEY_REFRESH_TOKEN);
 }
 export const setAuthenticated = (boolean) => {
   localStorage.setItem(KEY_AUTH,boolean);

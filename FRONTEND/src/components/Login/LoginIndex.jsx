@@ -15,7 +15,7 @@ import ReusableTextField from "../common/ReusableTextField";
 import { Form, Formik } from "formik";
 import { checkToken, loginWithUserAndPass } from "./LoginService";
 import { useAuth } from "../../auth/AuthContext";
-import { getToken } from "../../services/localStorageService";
+import { toast } from "react-toastify";
 
 function LoginIndex() {
   const [showPassword, setShowPassword] = useState(false);
@@ -33,33 +33,26 @@ function LoginIndex() {
       if (!isAuthenticated) return null;
       const token = getToken();
       if (token) {
-        try {
-          const response = await checkToken({ token });
-          console.log(response);
-          navigate("/home-inside");
-        } catch (error) {
-          console.log(error);
+        // handle error in interceptor of authorizedAxiosInstance => no need try catch here
+        await checkToken({ token });
+        navigate("/home-inside");
+      } else {
           logout();
           navigate("/login");
-        }
       }
     })();
+    return () => {
+      // cleanup
+    };
   }, [isAuthenticated, navigate, logout]);
 
   const Login = async (userObject) => {
     // error in event handler (onClick, onSubmit, onChange,...) will not be caught by ErrorBoundary
     // throw new Error("An error has occurred in Login function");
-    try {
       const response = await loginWithUserAndPass(userObject);
-      console.log(response);
-      console.log(response.data.code);
-      console.log(response.data.result);
-      login(response.data.result.token);
-      navigate("/");
-    } catch (error) {
-      console.log(error.response.response.code);
-      console.log(error.response.response.message);
-    }
+      login(response.data?.result?.accessToken, response.data?.result?.refreshToken);
+      navigate("/home-inside");
+      toast.success("Login successfully");
   };
   return (
     <Box
@@ -148,11 +141,11 @@ function LoginIndex() {
                 </Divider>
                 <ReusableTextField
                   label="Username"
-                  name="userName"
+                  name="username"
                 />
                 <ReusableTextField
                   label="Password"
-                  name="passWord"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   InputProps={{
