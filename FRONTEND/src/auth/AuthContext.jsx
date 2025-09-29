@@ -6,7 +6,7 @@ import {
   setAuthenticated,
   setRefreshToken,
 } from "../services/localStorageService";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { registerLogout } from "./authBridge";
 import { logOut } from "../components/Login/LoginService";
 
@@ -16,6 +16,7 @@ const AuthContext = createContext();
 // export function useAuth , this return AuContext
 export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
+  const logoutRunningRef = useRef(false);
   // throw new Error("An error has occurred in AuthProvider component");
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return getAuthenticated() === "true";
@@ -27,6 +28,9 @@ export const AuthProvider = ({ children }) => {
     setRefreshToken(refreshToken);
   };
   const logout = async () => {
+    if (logoutRunningRef.current) return;
+    if (!isAuthenticated) return;
+    logoutRunningRef.current = true;
     // remove token in localstorage
     try {
       // call api logout backend
@@ -34,10 +38,11 @@ export const AuthProvider = ({ children }) => {
     } finally {
       removeAccessToken();
       removeRefreshToken();
-      // remove isAuthentication in localstorage
+      // set isAuthentication into false in localstorage
       setAuthenticated(false);
       // set state
       setIsAuthenticated(false);
+      logoutRunningRef.current = false;
     }
   };
   useEffect(() => {

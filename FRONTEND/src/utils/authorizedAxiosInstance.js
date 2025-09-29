@@ -1,5 +1,4 @@
 import axios from "axios";
-import { get, set } from "mobx";
 import { toast } from "react-toastify";
 import {
   getAccessToken,
@@ -32,7 +31,6 @@ authorizedAxiosInstance.interceptors.request.use(
     const accessToken = getAccessToken();
     if (accessToken) {
       // need add Bearer , because according to OAuth2 standard , bearer is needed for define type of token
-
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
@@ -42,6 +40,11 @@ authorizedAxiosInstance.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+// Create a promise for calling the refresh_token API
+// The purpose of this Promise is that when the first refreshToken request comes in,
+// it will hold back calling the refresh_token API until the first one finishes successfully.
+// Only when will it retry the previous failed APIs, Instead of calling refresh repeatedly for each failed request.
+let refreshTokenPromise = null;
 
 // Add a response interceptor
 authorizedAxiosInstance.interceptors.response.use(
@@ -57,32 +60,42 @@ authorizedAxiosInstance.interceptors.response.use(
     // do not show toast if status is 410 (GONE) , 410 serve automatically refresh token when access token expired
 
     const originalRequest = error.config;
-      if(error.response?.status === 401) {
-        toast.error(error.response?.data?.message || error.message );
-        callLogout();
-      }
+    console.log("originalRequest", originalRequest);
+    console.log("error", error);
+    if (error.response?.status === 401) {
+      toast.error(error.response?.data?.message || error.message);
+      callLogout();
+      return Promise.reject(error);
+    }
 
-      // if status = 410 GONE ( need refresh token )
-      if (error.response?.status === 410 && !originalRequest._retry) {
-        // Access Token was expired
-        originalRequest._retry = true;
-        try {
-          const rs = await refreshToken(getRefreshToken());
-          const accessToken = rs.data?.result?.accessToken;
-          setAccessToken(accessToken);
-          authorizedAxiosInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
-          return authorizedAxiosInstance(originalRequest);
-        } catch (_error) {
-          // If error in process refresh token => LOGOUT
-          toast.error(_error.response?.data?.message || _error.message );
-          callLogout();
-          return Promise.reject(_error);
-        }
+    // if status = 410 GONE ( need refresh token )
+    if (error.response?.status === 410 && originalRequest) {
+      // Access Token was expired
+      if (!refreshTokenPromise) {
+        refreshTokenPromise = refreshToken(getRefreshToken())
+          .then((res) => {
+            const accessToken = res.data?.result?.accessToken;
+            setAccessToken(accessToken);
+            authorizedAxiosInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
+          })
+          .catch((_error) => {
+            // If error in process refresh token => LOGOUT
+            toast.error(_error.response?.data?.message || _error.message);
+            callLogout();
+            return Promise.reject(_error);
+          })
+          .finally(() => {
+            refreshTokenPromise = null;
+          });
       }
-      if (error.response?.status === 403 && error.response.data) {
-          toast.error(error.response?.data?.message || error.message );
-        return Promise.reject(error.response.data);
-      }
+      return refreshTokenPromise.then(() => {
+        return authorizedAxiosInstance(originalRequest);
+      });
+    }
+    if (error.response?.status === 403 && error.response.data) {
+      toast.error(error.response?.data?.message || error.message);
+      return Promise.reject(error);
+    }
     return Promise.reject(error);
   }
 );

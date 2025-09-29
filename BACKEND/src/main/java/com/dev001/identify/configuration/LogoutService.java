@@ -17,6 +17,7 @@ public class LogoutService implements LogoutHandler {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            request.setAttribute("auth.error.code", "LOGOUT_FAIL");
             return;
         }
         jwt = authHeader.substring("Bearer ".length());
@@ -24,12 +25,14 @@ public class LogoutService implements LogoutHandler {
         var savedToken = tokenRepository.findByToken(jwt).orElse(null);
         // check if token not exist in database, then return
         if(savedToken == null) {
+            request.setAttribute("auth.error.code", "LOGOUT_FAIL");
             return;
         }
         // if token exist in database, then get all tokens of user ( get user in token (already get in db) )
         var validUserTokens = tokenRepository.findAllValidTokensByUser(savedToken.getUser().getId());
         // if list of valid token is empty, then return
         if(validUserTokens.isEmpty()) {
+            request.setAttribute("auth.error.code", "LOGOUT_FAIL");
             return;
         }
         // revoke all valid token of user

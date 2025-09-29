@@ -20,9 +20,9 @@ export const signUp = (userObject) => {
   var url = API_PATH + "/register" ;
   return authorizedAxiosInstance.post(url,userObject);
 }
-export const getMyProfile = () => {
+export const getMyProfile = ({config = {}}) => {
   var url = API_PATH_2 + "/my-profile";
-  return authorizedAxiosInstance.get(url);
+  return authorizedAxiosInstance.get(url, config);
 };
 export const logOut = () => {
   var url = API_PATH + "/logout";

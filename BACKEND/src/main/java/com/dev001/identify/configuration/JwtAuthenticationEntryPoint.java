@@ -26,11 +26,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         errorCode = ErrorCode.UNAUTHENTICATED; // 401
         String code = (String) request.getAttribute("auth.error.code");
-        log.error("code:{}",code);
         if ("ACCESS_TOKEN_EXPIRED".equals(code)) { // do bạn ném từ filter khi detect ExpiredJwtException
-            log.error("Token expired entrypoint");
             errorCode = ErrorCode.ACCESS_TOKEN_EXPIRED;
         }
+        request.removeAttribute("auth.error.code");
         response.setStatus(errorCode.getStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setHeader("WWW-Authenticate", "Bearer error=\"invalid_token\", error_description=\"expired\"");
