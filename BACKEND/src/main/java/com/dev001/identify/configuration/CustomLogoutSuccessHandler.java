@@ -18,7 +18,14 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         SecurityContextHolder.clearContext();
-        ErrorCode errorCode = ErrorCode.LOGOUT_SUCCESS;
+
+        ErrorCode errorCode;
+        errorCode = ErrorCode.LOGOUT_SUCCESS;
+        String code = (String) request.getAttribute("auth.error.code");
+        if ("LOGOUT_FAIL".equals(code)) {
+            errorCode = ErrorCode.LOGOUT_FAIL;
+        }
+        request.removeAttribute("auth.error.code");
         response.setStatus(errorCode.getStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         ApiResponse<?> apiResponse = ApiResponse.builder()

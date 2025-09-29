@@ -10,15 +10,43 @@ function HomeInsideIndex() {
   const [userDetail, setUserDetails] = useState({});
   useEffect(() => {
     // handle error in interceptor of authorizedAxiosInstance => no need try catch here
+    const controller = new AbortController();
     (async () => {
-      const response = await getMyProfile();
+      const response = await getMyProfile({signal: controller.signal});
       toast.success("Fetch user details successfully");
       setUserDetails(response.data.result);
     })();
     return () => {
       // cleanup
+      controller.abort();
     };
   }, []);
+  // Test scenario call many API 
+  useEffect(() => {
+    // handle error in interceptor of authorizedAxiosInstance => no need try catch here
+    const controller = new AbortController();
+    (async () => {
+      const response = await getMyProfile({signal: controller.signal});
+      toast.success("Fetch user details successfully");
+    })();
+    return () => {
+      // cleanup
+      controller.abort();
+    };
+  }, []);
+  useEffect(() => {
+    // handle error in interceptor of authorizedAxiosInstance => no need try catch here
+    const controller = new AbortController();
+    (async () => {
+      const response = await getMyProfile({signal: controller.signal});
+      toast.success("Fetch user details successfully");
+    })();
+    return () => {
+      // cleanup
+      controller.abort();
+    };
+  }, []);
+  
   return (
     <>
       <HeaderIndex />

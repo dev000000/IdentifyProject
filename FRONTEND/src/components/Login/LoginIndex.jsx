@@ -23,28 +23,28 @@ function LoginIndex() {
   const { isAuthenticated, login, logout } = useAuth();
   // throw Error here and ErrorBoundary of react-router-dom will catch it
   // throw new Error("An error has occurred in LoginIndex component");
-  useEffect(() => {
-    // anonymous function : ham an danh 
-    // async () => { .... }
-    // ( async () => {.....} ) declaration => expression
-    // ( async () => { ..... })() goi
-    // IIFE (Immediately Invoked Function Expression) : Ham tu goi ngay lap tuc
-    (async () => {
-      if (!isAuthenticated) return null;
-      const token = getToken();
-      if (token) {
-        // handle error in interceptor of authorizedAxiosInstance => no need try catch here
-        await checkToken({ token });
-        navigate("/home-inside");
-      } else {
-          logout();
-          navigate("/login");
-      }
-    })();
-    return () => {
-      // cleanup
-    };
-  }, [isAuthenticated, navigate, logout]);
+  // useEffect(() => {
+  //   // anonymous function : ham an danh 
+  //   // async () => { .... }
+  //   // ( async () => {.....} ) declaration => expression
+  //   // ( async () => { ..... })() goi
+  //   // IIFE (Immediately Invoked Function Expression) : Ham tu goi ngay lap tuc
+  //   (async () => {
+  //     if (!isAuthenticated) return null;
+  //     const token = getToken();
+  //     if (token) {
+  //       // handle error in interceptor of authorizedAxiosInstance => no need try catch here
+  //       await checkToken({ token });
+  //       navigate("/home-inside");
+  //     } else {
+  //         logout();
+  //         navigate("/login");
+  //     }
+  //   })();
+  //   return () => {
+  //     // cleanup
+  //   };
+  // }, [isAuthenticated, navigate, logout]);
 
   const Login = async (userObject) => {
     // error in event handler (onClick, onSubmit, onChange,...) will not be caught by ErrorBoundary
@@ -89,7 +89,7 @@ function LoginIndex() {
 
         <Box sx={{ width: "100%" }}>
           <Formik
-            initialValues={{ userName: "", passWord: "" }}
+            initialValues={{ username: "", password: "" }}
             onSubmit={(values) => {
               Login(values);
             }}
