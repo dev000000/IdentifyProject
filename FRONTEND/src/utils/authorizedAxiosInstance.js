@@ -6,15 +6,21 @@ import {
   setAccessToken,
 } from "../services/localStorageService";
 import PUBLIC_API_PATH from "../constants/apiPaths";
-import { refreshToken } from "../components/Login/LoginService";
+import { refreshToken, refreshTokenCookie } from "../components/Login/LoginService";
 import { callLogout } from "../auth/authBridge";
+
 // initialize axios instance to customize and define configurations fot the project
 let authorizedAxiosInstance = axios.create();
+
 // set timeout for each request : thoi gian cho moi request
 authorizedAxiosInstance.defaults.timeout = 1000 * 60 * 10; // 10 minutes
 
 // allow to send cookies with request to backend ( case save JWT tokens (refresh, access) in https-only cookies )
-// authorizedAxiosInstance.defaults.withCredentials = true;
+authorizedAxiosInstance.defaults.withCredentials = true;
+
+// 
+// authorizedAxiosInstance.defaults.xsrfCookieName = "XSRF-TOKEN",
+// authorizedAxiosInstance.defaults.xsrfHeaderName = "X-XSRF-TOKEN",
 
 // configure interceptors for request and response
 
@@ -23,16 +29,18 @@ authorizedAxiosInstance.interceptors.request.use(
   (config) => {
     // Do something before request is sent
 
+    // THIS SECTION FOR LOCAL STORAGE
+
     // do not add token to request if the request is public api
-    if (PUBLIC_API_PATH.includes(config.url)) {
-      return config;
-    }
-    // add token to header of request if exist
-    const accessToken = getAccessToken();
-    if (accessToken) {
-      // need add Bearer , because according to OAuth2 standard , bearer is needed for define type of token
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
+    // if (PUBLIC_API_PATH.includes(config.url)) {
+    //   return config;
+    // }
+    // // add token to header of request if exist
+    // const accessToken = getAccessToken();
+    // if (accessToken) {
+    //   // need add Bearer , because according to OAuth2 standard , bearer is needed for define type of token
+    //   config.headers.Authorization = `Bearer ${accessToken}`;
+    // }
     return config;
   },
   (error) => {
@@ -60,8 +68,6 @@ authorizedAxiosInstance.interceptors.response.use(
     // do not show toast if status is 410 (GONE) , 410 serve automatically refresh token when access token expired
 
     const originalRequest = error.config;
-    console.log("originalRequest", originalRequest);
-    console.log("error", error);
     if (error.response?.status === 401) {
       toast.error(error.response?.data?.message || error.message);
       callLogout();
@@ -72,11 +78,12 @@ authorizedAxiosInstance.interceptors.response.use(
     if (error.response?.status === 410 && originalRequest) {
       // Access Token was expired
       if (!refreshTokenPromise) {
-        refreshTokenPromise = refreshToken(getRefreshToken())
+        refreshTokenPromise = refreshTokenCookie()
           .then((res) => {
-            const accessToken = res.data?.result?.accessToken;
-            setAccessToken(accessToken);
-            authorizedAxiosInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
+            // This is for local storage
+            // const accessToken = res.data?.result?.accessToken;
+            // setAccessToken(accessToken);
+            // authorizedAxiosInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
           })
           .catch((_error) => {
             // If error in process refresh token => LOGOUT

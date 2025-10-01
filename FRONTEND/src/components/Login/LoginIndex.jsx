@@ -49,8 +49,9 @@ function LoginIndex() {
   const Login = async (userObject) => {
     // error in event handler (onClick, onSubmit, onChange,...) will not be caught by ErrorBoundary
     // throw new Error("An error has occurred in Login function");
-      const response = await loginWithUserAndPass(userObject);
-      login(response.data?.result?.accessToken, response.data?.result?.refreshToken);
+      await loginWithUserAndPass(userObject);
+      // login(response.data?.result?.accessToken, response.data?.result?.refreshToken);
+      login();
       navigate("/home-inside");
       toast.success("Login successfully");
   };

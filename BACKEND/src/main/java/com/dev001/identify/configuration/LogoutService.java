@@ -1,6 +1,7 @@
 package com.dev001.identify.configuration;
 
 import com.dev001.identify.repository.TokenRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +15,30 @@ public class LogoutService implements LogoutHandler {
     private final TokenRepository tokenRepository;
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+
+        // CASE 1 : RETURN JSON FOR STORING IN LOCAL STORAGE
+//        final String authHeader = request.getHeader("Authorization");
+//        final String jwt;
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            request.setAttribute("auth.error.code", "LOGOUT_FAIL");
+//            return;
+//        }
+//        jwt = authHeader.substring("Bearer ".length());
+
+        // CASE 2 : USE HTTP ONLY COOKIE
+        String jwt = null;
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if ("accessToken".equals(c.getName())) {
+                    jwt = c.getValue();
+                    break;
+                }
+            }
+        }
+        if (jwt == null) {
             request.setAttribute("auth.error.code", "LOGOUT_FAIL");
             return;
         }
-        jwt = authHeader.substring("Bearer ".length());
 
         var savedToken = tokenRepository.findByToken(jwt).orElse(null);
         // check if token not exist in database, then return

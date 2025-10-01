@@ -23,9 +23,11 @@ export const AuthProvider = ({ children }) => {
   });
   const login = (accessToken, refreshToken) => {
     setIsAuthenticated(true);
+
+    // This is for local storage
     setAuthenticated(true);
-    setAccessToken(accessToken);
-    setRefreshToken(refreshToken);
+    // setAccessToken(accessToken);
+    // setRefreshToken(refreshToken);
   };
   const logout = async () => {
     if (logoutRunningRef.current) return;
@@ -36,10 +38,14 @@ export const AuthProvider = ({ children }) => {
       // call api logout backend
       await logOut();
     } finally {
-      removeAccessToken();
-      removeRefreshToken();
+
+      // This is for local storage
+      // removeAccessToken();
+      // removeRefreshToken();
+
       // set isAuthentication into false in localstorage
       setAuthenticated(false);
+
       // set state
       setIsAuthenticated(false);
       logoutRunningRef.current = false;
