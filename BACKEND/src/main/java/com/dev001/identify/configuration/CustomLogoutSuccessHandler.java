@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,7 +16,10 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 @Component
+@RequiredArgsConstructor
 public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
+
+    private final CookieFactory cookieFactory;
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         SecurityContextHolder.clearContext();
@@ -25,6 +30,10 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
         if ("LOGOUT_FAIL".equals(code)) {
             errorCode = ErrorCode.LOGOUT_FAIL;
         }
+        // CASE 2 : IF USE HTTP ONLY COOKIE , REMOVE COOKIE FROM RESPONSE
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.deleteAccessCookie().toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.deleteRefreshCookie().toString());
+
         request.removeAttribute("auth.error.code");
         response.setStatus(errorCode.getStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

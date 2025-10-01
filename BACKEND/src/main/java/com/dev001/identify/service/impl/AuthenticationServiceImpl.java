@@ -1,5 +1,6 @@
 package com.dev001.identify.service.impl;
 
+import com.dev001.identify.configuration.CookieFactory;
 import com.dev001.identify.configuration.JwtService;
 import com.dev001.identify.dto.request.AuthenticationRequest;
 import com.dev001.identify.dto.request.RefreshTokenRequest;
@@ -14,8 +15,13 @@ import com.dev001.identify.mapper.UserMapper;
 import com.dev001.identify.repository.TokenRepository;
 import com.dev001.identify.repository.UserRepository;
 import com.dev001.identify.service.AuthenticationService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,10 +45,37 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final UserMapper userMapper;
+    private final CookieFactory cookieFactory;
 
+
+//    CASE 1 : RETURN JSON FOR STORING IN LOCAL STORAGE
+//    @Override
+//    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+//        // 1. Authenticate user
+//        authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword())
+//        );
+//        // 2. Check user exist
+//        User user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(USER_NOT_FOUND));
+//
+//        // 3. revoke all tokens of user in database
+//        revokeAllUserTokens(user, true);
+//        // 4. generate new token for user
+//        String accessToken = jwtService.generateToken(user,false);
+//        String refreshToken = jwtService.generateToken(user, true);
+//        // 5. save token to database
+//        saveUserToken(user, accessToken, true);
+//        saveUserToken(user, refreshToken, false);
+//        // 6. return response
+//        return AuthenticationResponse.builder()
+//                .accessToken(accessToken)
+//                .refreshToken(refreshToken)
+//                .authenticated(true)
+//                .build();
+//    }
+//    CASE 2 : USE HTTP ONLY COOKIE
     @Override
-    // this service is check user name and password
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request, HttpServletResponse response) {
         // 1. Authenticate user
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword())
@@ -58,10 +91,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // 5. save token to database
         saveUserToken(user, accessToken, true);
         saveUserToken(user, refreshToken, false);
-        // 6. return response
+
+        // 6. set cookie for response
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.accessCookie(accessToken).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.refreshCookie(refreshToken).toString());
+
+        // 7. return response
         return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .authenticated(true)
                 .build();
     }
@@ -87,8 +123,39 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         tokenRepository.save(savedToken);
     }
 
+//    CASE 1 : RETURN JSON FOR STORING IN LOCAL STORAGE
+//    @Override
+//    public RegisterResponse register(RegisterRequest request) {
+//
+//        // 1. check username existed
+//        if (userRepository.existsByUsername(request.getUsername())) {
+//            throw new AppException(USER_EXISTED);
+//        }
+//        // 2. convert RegisterRequest to User
+//        User user = userMapper.toUser(request);
+//        // 3. hash password and set it to user
+//        String hashedPassword = passwordEncoder.encode(request.getPassword());
+//        user.setPassword(hashedPassword);
+//        // 4. set roles to user (default role is USER for user register)
+//        user.setRole(USER);
+//        // 5. save user to DB
+//        var savedUser = userRepository.save(user);
+//        // 6. generate token for user
+//        String accessToken = jwtService.generateToken(savedUser, false);
+//        String refreshToken = jwtService.generateToken(savedUser, true);
+//        // 7. save token to DB
+//        saveUserToken(savedUser, accessToken, true);
+//        saveUserToken(savedUser, refreshToken, false);
+//        // 8. convert user to RegisterResponse and return
+//        RegisterResponse response = userMapper.toRegisterResponse(user);
+//        response.setAccessToken(accessToken);
+//        response.setRefreshToken(refreshToken);
+//        return response;
+//    }
+
+    //    CASE 2 : USE HTTP ONLY COOKIE
     @Override
-    public RegisterResponse register(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request, HttpServletResponse response) {
 
         // 1. check username existed
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -110,15 +177,57 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         saveUserToken(savedUser, accessToken, true);
         saveUserToken(savedUser, refreshToken, false);
         // 8. convert user to RegisterResponse and return
-        RegisterResponse response = userMapper.toRegisterResponse(user);
-        response.setAccessToken(accessToken);
-        response.setRefreshToken(refreshToken);
-        return response;
+
+        RegisterResponse RegisResponse = userMapper.toRegisterResponse(user);
+        // 9. set cookie for response
+//        response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.accessCookie(accessToken).toString());
+//        response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.refreshCookie(refreshToken).toString());
+        return RegisResponse;
     }
+//    CASE 1 : RETURN JSON FOR STORING IN LOCAL STORAGE
+//    @Override
+//    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+//        // 1. get refresh token from request
+//        String refreshToken = request.getRefreshToken();
+//        // 2. extract username from refresh token
+//        String userName = jwtService.extractUserName(refreshToken).orElse(null);
+//        // 3. check if username in token is null throw ex
+//        if(userName == null) {
+//            throw new AppException(REFRESH_TOKEN_EXPIRED);
+//        }
+//        // 4. check if user not exist in db throw ex
+//        var userDetails = userRepository.findByUsername(userName).orElseThrow(() -> new AppException(REFRESH_TOKEN_EXPIRED));
+//        // 5. check if token is expired or not valid throw ex
+//        if(!jwtService.isTokenValid(refreshToken, userDetails)) {
+//            throw new AppException(REFRESH_TOKEN_EXPIRED);
+//        }
+//        // 6. check if token is revoked or not throw ex
+//        var isTokenRevoked = tokenRepository.findByToken(refreshToken).map(token -> !token.isRevoked()).orElse(false);
+//        if(!isTokenRevoked) {
+//            throw new AppException(REFRESH_TOKEN_EXPIRED);
+//        }
+//        // 6. revoke all token available of user, then generate new access token for user and save it to DB,
+//        revokeAllUserTokens(userDetails, false);
+//        var accessToken = jwtService.generateToken(userDetails, false);
+//        saveUserToken(userDetails, accessToken, true);
+//        // 7. return response
+//        return RefreshTokenResponse.builder()
+//                .accessToken(accessToken)
+//                .build();
+//    }
+    //    CASE 2 : USE HTTP ONLY COOKIE
     @Override
-    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
         // 1. get refresh token from request
-        String refreshToken = request.getRefreshToken();
+        String refreshToken = null;
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if ("refreshToken".equals(c.getName())) {
+                    refreshToken = c.getValue();
+                    break;
+                }
+            }
+        }
         // 2. extract username from refresh token
         String userName = jwtService.extractUserName(refreshToken).orElse(null);
         // 3. check if username in token is null throw ex
@@ -140,11 +249,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         revokeAllUserTokens(userDetails, false);
         var accessToken = jwtService.generateToken(userDetails, false);
         saveUserToken(userDetails, accessToken, true);
-        // 7. return response
-        return RefreshTokenResponse.builder()
-                .accessToken(accessToken)
-                .build();
+        // 7. set cookie for response
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.accessCookie(accessToken).toString());
     }
+
 
     // this section is for oauth2
 //    @Override

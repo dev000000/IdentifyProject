@@ -6,6 +6,7 @@ import com.dev001.identify.exception.TokenExpiredException;
 import com.dev001.identify.repository.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -36,17 +37,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        // 1. get Header from request (Authorization)
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String userName;
-        // 2. if header is null or not start with Bearer, then dofilter next filter in filter chain
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // this section is for Bearer Token
+//
+//        // 1. get Header from request (Authorization)
+//        final String authHeader = request.getHeader("Authorization");
+//        final String jwt;
+//        final String userName;
+//        // 2. if header is null or not start with Bearer, then dofilter next filter in filter chain
+//        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//        // 3. get jwt from header
+//        jwt = authHeader.substring("Bearer ".length());
+
+        // this section is for HttpOnly Cookie
+        String uri = request.getRequestURI();
+        if( uri.contains("/login") || uri.contains("/register") || uri.contains("/introspect") || uri.contains("/refresh-token"))  {
             filterChain.doFilter(request, response);
             return;
         }
-        // 3. get jwt from header
-        jwt = authHeader.substring("Bearer ".length());
+         String jwt = null;
+         String userName;
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if ("accessToken".equals(c.getName())) {
+                    jwt = c.getValue();
+                    break;
+                }
+            }
+        }
+        if (jwt == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         var isTokenExpired = jwtService.isTokenExpired(jwt);
         if (isTokenExpired) {
             request.setAttribute("auth.error.code", "ACCESS_TOKEN_EXPIRED");

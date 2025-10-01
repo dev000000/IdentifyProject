@@ -23,9 +23,13 @@ application:
   security:
     jwt:
       secret-key: "7RNUqJlIkY3IuGxPKbC7GoGDW40BdtEviJxdjqXSCqrptnnqC98+hyRUB87BxzQG"
-      expiration: 10000
+      expiration: 15000
       refresh-token:
-        expiration: 20000
+        expiration: 30000
+    cookie:
+      secure: true
+      same-site: Lax
+
 #jwt:
 #  refresh-token-key: "7RNUqJlIkY3IuGxPKbC7GoGDW40BdtEviJxdjqXSCqrptnnqC98+hyRUB87BxzQG"
 #  access-token-key: "ZeroJdXEgYS9h2Qt2WuiMmNUquk5X1w++iX+4SCI2ZmTHK9Htuz6OmsDDkq1huB8"
