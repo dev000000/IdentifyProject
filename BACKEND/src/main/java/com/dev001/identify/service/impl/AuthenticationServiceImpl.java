@@ -21,12 +21,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 import static com.dev001.identify.enums.Role.USER;
@@ -158,9 +160,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public RegisterResponse register(RegisterRequest request, HttpServletResponse response) {
 
         // 1. check username existed
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new AppException(USER_EXISTED);
-        }
+        // Don't need this
+//        if (userRepository.existsByUsername(request.getUsername())) {
+//            throw new AppException(USER_EXISTED);
+//        }
         // 2. convert RegisterRequest to User
         User user = userMapper.toUser(request);
         // 3. hash password and set it to user
@@ -169,7 +172,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // 4. set roles to user (default role is USER for user register)
         user.setRole(USER);
         // 5. save user to DB
-        var savedUser = userRepository.save(user);
+        User savedUser = null;
+        try {
+            savedUser = userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new AppException(USER_EXISTED);
+        }
         // 6. generate token for user
         String accessToken = jwtService.generateToken(savedUser, false);
         String refreshToken = jwtService.generateToken(savedUser, true);
