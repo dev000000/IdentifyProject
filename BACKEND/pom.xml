@@ -256,7 +256,8 @@
                     <execution>
                         <phase>compile</phase>
                         <goals>
-                            <goal>apply</goal>
+                            <!-- while building project check spotless , if fail, u must check code and spotless:apply , after that re-build-->
+                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>

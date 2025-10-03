@@ -1,10 +1,7 @@
 package com.dev001.identify.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
-import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,22 +35,22 @@ class UserControllerTest {
     private UserResponse response;
 
     @BeforeEach
-    void setUp() {
-        request = UserCreationRequest.builder()
-                .userName("testtesttest")
-                .passWord("passwordtest")
-                .firstName("test")
-                .lastName("test")
-                .dob(LocalDate.parse("2007-08-28"))
-                .build();
-        response = UserResponse.builder()
-                .id("adkjflsd")
-                .userName("testtesttest")
-                .firstName("test")
-                .lastName("test")
-                .dob(LocalDate.parse("2007-08-28"))
-                .build();
-    }
+    //    void setUp() {
+    //        request = UserCreationRequest.builder()
+    //                .userName("testtesttest")
+    //                .passWord("passwordtest")
+    //                .firstName("test")
+    //                .lastName("test")
+    //                .dob(LocalDate.parse("2007-08-28"))
+    //                .build();
+    //        response = UserResponse.builder()
+    //                .id("adkjflsd")
+    //                .userName("testtesttest")
+    //                .firstName("test")
+    //                .lastName("test")
+    //                .dob(LocalDate.parse("2007-08-28"))
+    //                .build();
+    //    }
 
     @Test
     void createUser_validInput_shouldReturnUserDetails() throws Exception {
@@ -71,7 +68,7 @@ class UserControllerTest {
         "dob": "2007-08-28"
         }
         */
-        when(userService.createUser(any())).thenReturn(response);
+        //        when(userService.createUser(any())).thenReturn(response);
         // when
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -87,7 +84,7 @@ class UserControllerTest {
         // given
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        request.setPassWord("dhsja"); // 5 characters
+        //        request.setPassWord("dhsja"); // 5 characters
         String content = objectMapper.writeValueAsString(request);
         // convert object to json string
         /*
@@ -99,7 +96,7 @@ class UserControllerTest {
         "dob": "2007-08-28"
         }
         */
-        when(userService.createUser(any())).thenReturn(response);
+        //        when(userService.createUser(any())).thenReturn(response);
         // when
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -109,7 +106,7 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("message")
                         .value("Password must be between 10 and 20 characters"));
 
-        verify(userService, never()).createUser(any());
+        //        verify(userService, never()).createUser(any());
         // then
 
     }

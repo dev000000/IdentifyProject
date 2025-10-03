@@ -5,9 +5,10 @@ spring:
   application:
     name: identify
   datasource:
-    url: ${DBMS_CONNECTION}
-    username: ${DBMS_USERNAME}
-    password: ${DBMS_PASSWORD}
+    # 1. if dont have environment variable DBMS_CONNECTION , set default value is jdbc:mysql://localhost:3306/identifyDB
+    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/identifyDB}
+    username: ${DBMS_USERNAME:root}
+    password: ${DBMS_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database: mysql
@@ -19,14 +20,10 @@ spring:
         format_sql: true
         use_sql_comments: true
 
-
-#1 if u want use environment variable , u set it like this
-#APPLICATION_SECURITY_JWT_SECRETKEY = 7RNUqJlIkY3IuGxPKbC7GoGDW40BdtEviJxdjqXSCqrptnnqC98+hyRUB87BxzQG
 application:
   security:
     jwt:
-#2 and u remove this line
-#      secret-key: "7RNUqJlIkY3IuGxPKbC7GoGDW40BdtEviJxdjqXSCqrptnnqC98+hyRUB87BxzQG"
+      secret-key: "${SECRET_KEY:7RNUqJlIkY3IuGxPKbC7GoGDW40BdtEviJxdjqXSCqrptnnqC98+hyRUB87BxzQG}"
       expiration: 15000
       refresh-token:
         expiration: 30000

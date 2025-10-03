@@ -23,8 +23,7 @@ public enum ErrorCode {
     USERNAME_OR_PASSWORD_INCORECT(1009, "User name or password is incorect!", HttpStatus.UNAUTHORIZED),
     LOGOUT_SUCCESS(1010, "Logout success", HttpStatus.OK),
     REFRESH_TOKEN_EXPIRED(1011, "Your session has expired. Please login again.", HttpStatus.UNAUTHORIZED),
-    LOGOUT_FAIL(1012, "Logout fail!",HttpStatus.BAD_REQUEST);
-
+    LOGOUT_FAIL(1012, "Logout fail!", HttpStatus.BAD_REQUEST);
 
     private int code;
     private String message;

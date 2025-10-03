@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
-//@PreAuthorize("hasRole('ADMIN')")
+// @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     @GetMapping
@@ -36,6 +36,4 @@ public class AdminController {
     public String delete() {
         return "DELETE:: admin controller";
     }
-
-
 }

@@ -2,8 +2,9 @@ package com.dev001.identify.entity.invalidatedToken;
 
 import java.util.Date;
 
-import com.dev001.identify.enums.TokenType;
 import jakarta.persistence.*;
+
+import com.dev001.identify.enums.TokenType;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

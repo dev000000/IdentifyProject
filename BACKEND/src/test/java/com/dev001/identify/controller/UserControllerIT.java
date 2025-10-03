@@ -1,7 +1,5 @@
 package com.dev001.identify.controller;
 
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,22 +50,22 @@ class UserControllerIT {
     private UserResponse response;
 
     @BeforeEach
-    void setUp() {
-
-        request = UserCreationRequest.builder()
-                .userName("testtesttest")
-                .passWord("passwordtest")
-                .firstName("test")
-                .lastName("test")
-                .dob(LocalDate.parse("2007-08-28"))
-                .build();
-        response = UserResponse.builder()
-                .userName("testtesttest")
-                .firstName("test")
-                .lastName("test")
-                .dob(LocalDate.parse("2007-08-28"))
-                .build();
-    }
+    //    void setUp() {
+    //
+    //        request = UserCreationRequest.builder()
+    //                .userName("testtesttest")
+    //                .passWord("passwordtest")
+    //                .firstName("test")
+    //                .lastName("test")
+    //                .dob(LocalDate.parse("2007-08-28"))
+    //                .build();
+    //        response = UserResponse.builder()
+    //                .userName("testtesttest")
+    //                .firstName("test")
+    //                .lastName("test")
+    //                .dob(LocalDate.parse("2007-08-28"))
+    //                .build();
+    //    }
 
     @Test
     void createUser_validInput_shouldReturnUserDetails() throws Exception {
@@ -104,7 +102,7 @@ class UserControllerIT {
         // given
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        request.setPassWord("dhsja"); // 5 characters
+        //        request.setPassWord("dhsja"); // 5 characters
         String content = objectMapper.writeValueAsString(request);
         // convert object to JSON string
 

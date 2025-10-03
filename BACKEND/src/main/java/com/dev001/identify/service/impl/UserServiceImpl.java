@@ -1,35 +1,25 @@
 package com.dev001.identify.service.impl;
 
-import static com.dev001.identify.enums.Role.USER;
-import static com.dev001.identify.exception.ErrorCode.USER_EXISTED;
 import static com.dev001.identify.exception.ErrorCode.USER_NOT_FOUND;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import com.dev001.identify.configuration.JwtService;
-import io.jsonwebtoken.Jwt;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.dev001.identify.dto.request.UserCreationRequest;
+import com.dev001.identify.configuration.JwtService;
 import com.dev001.identify.dto.request.UserUpdateRequest;
 import com.dev001.identify.dto.response.UserResponse;
 import com.dev001.identify.entity.user.User;
-import com.dev001.identify.enums.Role;
 import com.dev001.identify.exception.AppException;
 import com.dev001.identify.mapper.UserMapper;
 import com.dev001.identify.repository.RoleRepository;
 import com.dev001.identify.repository.UserRepository;
 import com.dev001.identify.service.UserService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -43,33 +33,33 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-//    @Override
-//    public UserResponse createUser(UserCreationRequest request) {
-//
-//        if (userRepository.existsByUsername(request.getUsername())) {
-//            throw new AppException(USER_EXISTED);
-//        }
-//        User user = userMapper.toUser(request);
-//        String hashedPassword = passwordEncoder.encode(request.getPassword());
-//        user.setPassword(hashedPassword);
-////        Set<String> roles = new HashSet<>();
-////        roles.add(Role.USER.name());;
-////                user.setRoles(roles);
-//        user.setRole(USER);
-//        UserResponse userRes = userMapper.toUserResponse(userRepository.save(user));
-//        userRes.setToken(jwtService.generateToken(user, false));
-//        return userRes;
-//    }
+    //    @Override
+    //    public UserResponse createUser(UserCreationRequest request) {
+    //
+    //        if (userRepository.existsByUsername(request.getUsername())) {
+    //            throw new AppException(USER_EXISTED);
+    //        }
+    //        User user = userMapper.toUser(request);
+    //        String hashedPassword = passwordEncoder.encode(request.getPassword());
+    //        user.setPassword(hashedPassword);
+    ////        Set<String> roles = new HashSet<>();
+    ////        roles.add(Role.USER.name());;
+    ////                user.setRoles(roles);
+    //        user.setRole(USER);
+    //        UserResponse userRes = userMapper.toUserResponse(userRepository.save(user));
+    //        userRes.setToken(jwtService.generateToken(user, false));
+    //        return userRes;
+    //    }
 
     @Override
     //    @PreAuthorize("hasRole('ADMIN')")
-//    @PreAuthorize("hasAuthority('READ_DATA')")/
+    //    @PreAuthorize("hasAuthority('READ_DATA')")/
     public List<UserResponse> getAllUsers() {
         return userMapper.toUserResponse(userRepository.findAll());
     }
 
     @Override
-//    @PreAuthorize("hasRole('ADMIN')")
+    //    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getUserDetail(String id) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(USER_NOT_FOUND));
         return userMapper.toUserResponse(user);
@@ -88,7 +78,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateUser(String id, UserUpdateRequest request) {
         var roles = roleRepository.findAllById(request.getRoles());
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(USER_NOT_FOUND));
-//        user.setRoles(new HashSet<>(roles));
+        //        user.setRoles(new HashSet<>(roles));
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         return userMapper.toUserResponse(userRepository.save(user));
