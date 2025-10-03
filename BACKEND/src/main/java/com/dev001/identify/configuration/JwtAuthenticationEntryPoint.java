@@ -2,17 +2,18 @@ package com.dev001.identify.configuration;
 
 import java.io.IOException;
 
-import com.dev001.identify.exception.TokenExpiredException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+
 import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

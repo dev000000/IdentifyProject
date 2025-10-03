@@ -4,13 +4,14 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
-import com.dev001.identify.entity.token.Token;
 import jakarta.persistence.*;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.dev001.identify.entity.token.Token;
 import com.dev001.identify.enums.Role;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -41,8 +42,8 @@ public class User implements UserDetails {
 
     LocalDate dob;
 
-//    @ManyToMany
-//    Set<Role> roles;
+    //    @ManyToMany
+    //    Set<Role> roles;
     @Enumerated(EnumType.STRING)
     Role role;
 
@@ -51,10 +52,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return roles.stream().flatMap(role -> role.getAuthorities().stream()).collect(Collectors.toSet());
+        //        return roles.stream().flatMap(role -> role.getAuthorities().stream()).collect(Collectors.toSet());
         return role.getAuthorities();
     }
-
 
     @Override
     public String getPassword() {

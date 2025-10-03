@@ -2,12 +2,9 @@ package com.dev001.identify.controller;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import com.dev001.identify.dto.request.UserCreationRequest;
 import com.dev001.identify.dto.request.UserUpdateRequest;
 import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.dto.response.UserResponse;
@@ -40,13 +37,13 @@ public class UserController {
         //      spotless:on
     }
 
-//    @PostMapping
-//    public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-//        return ApiResponse.<UserResponse>builder()
-//                .code(1000)
-//                .result(userService.createUser(request))
-//                .build();
-//    }
+    //    @PostMapping
+    //    public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
+    //        return ApiResponse.<UserResponse>builder()
+    //                .code(1000)
+    //                .result(userService.createUser(request))
+    //                .build();
+    //    }
 
     @GetMapping("/{id}")
     public ApiResponse<UserResponse> getUser(@PathVariable String id) {

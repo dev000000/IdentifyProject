@@ -5,17 +5,17 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -43,17 +43,18 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-//    public String generateToken(UserDetails userDetails) {
-//        return generateToken(new HashMap<>(), userDetails);
-//    }
+    //    public String generateToken(UserDetails userDetails) {
+    //        return generateToken(new HashMap<>(), userDetails);
+    //    }
 
     public String generateToken(UserDetails userDetails, boolean isRefreshToken) {
         return Jwts.builder()
-//                .setId(UUID.randomUUID().toString())
+                //                .setId(UUID.randomUUID().toString())
                 .setIssuer("https://github.com/DEV00000001")
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + (isRefreshToken ? refreshExpiration : jwtExpiration)))
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + (isRefreshToken ? refreshExpiration : jwtExpiration)))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -73,7 +74,6 @@ public class JwtService {
         } catch (ExpiredJwtException e) {
             return true;
         }
-
     }
 
     public Date extractExpiration(String token) {

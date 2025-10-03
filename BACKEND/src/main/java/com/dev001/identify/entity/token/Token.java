@@ -1,12 +1,14 @@
 package com.dev001.identify.entity.token;
 
+import java.util.Date;
+
+import jakarta.persistence.*;
+
 import com.dev001.identify.entity.user.User;
 import com.dev001.identify.enums.TokenType;
-import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Date;
 
 @Entity
 @Data
@@ -30,8 +32,8 @@ public class Token {
     boolean revoked;
 
     boolean isAccessToken;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     User user;
-
 }

@@ -1,25 +1,25 @@
-//package com.dev001.identify.configuration;
+// package com.dev001.identify.configuration;
 //
-//import java.text.ParseException;
-//import java.util.Objects;
-//import javax.crypto.spec.SecretKeySpec;
+// import java.text.ParseException;
+// import java.util.Objects;
+// import javax.crypto.spec.SecretKeySpec;
 //
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-//import org.springframework.security.oauth2.jwt.*;
-//import org.springframework.stereotype.Component;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+// import org.springframework.security.oauth2.jwt.*;
+// import org.springframework.stereotype.Component;
 //
-//import com.dev001.identify.dto.request.IntrospectRequest;
-//import com.dev001.identify.exception.AppException;
-//import com.dev001.identify.service.AuthenticationService;
-//import com.nimbusds.jose.JOSEException;
+// import com.dev001.identify.dto.request.IntrospectRequest;
+// import com.dev001.identify.exception.AppException;
+// import com.dev001.identify.service.AuthenticationService;
+// import com.nimbusds.jose.JOSEException;
 //
-//import lombok.extern.slf4j.Slf4j;
+// import lombok.extern.slf4j.Slf4j;
 //
-//@Slf4j
-//@Component
-//public class CustomJwtDecoder implements JwtDecoder {
+// @Slf4j
+// @Component
+// public class CustomJwtDecoder implements JwtDecoder {
 //
 //    private NimbusJwtDecoder nimbusJwtDecoder = null;
 //
@@ -52,4 +52,4 @@
 //
 //        return nimbusJwtDecoder.decode(token);
 //    }
-//}
+// }

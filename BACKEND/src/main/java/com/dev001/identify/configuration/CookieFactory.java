@@ -1,10 +1,10 @@
 package com.dev001.identify.configuration;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class CookieFactory {
@@ -17,27 +17,32 @@ public class CookieFactory {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration; // in milliseconds
 
-
     public ResponseCookie accessCookie(String value) {
         long maxAgeSeconds = TimeUnit.MILLISECONDS.toSeconds(refreshExpiration);
         return base("accessToken", value, "/", maxAgeSeconds);
     }
+
     public ResponseCookie accessCookie(String value, long maxAgeSeconds) {
         return base("accessToken", value, "/", maxAgeSeconds);
     }
+
     public ResponseCookie refreshCookie(String value, long maxAgeSeconds) {
         return base("refreshToken", value, "/", maxAgeSeconds);
     }
+
     public ResponseCookie refreshCookie(String value) {
-            long maxAgeSeconds = TimeUnit.MILLISECONDS.toSeconds(refreshExpiration);
+        long maxAgeSeconds = TimeUnit.MILLISECONDS.toSeconds(refreshExpiration);
         return base("refreshToken", value, "/", maxAgeSeconds);
     }
+
     public ResponseCookie deleteAccessCookie() {
-        return accessCookie("",0);
+        return accessCookie("", 0);
     }
+
     public ResponseCookie deleteRefreshCookie() {
-        return refreshCookie("",0);
+        return refreshCookie("", 0);
     }
+
     private ResponseCookie base(String name, String value, String path, long maxAge) {
         return ResponseCookie.from(name, value == null ? "" : value)
                 .httpOnly(true)
