@@ -1,8 +1,0 @@
-#profile default
-
-spring:
-  # 1. spring.profiles.active= {dev,prod} // name of profile
-  profiles:
-    active: dev
-
-
