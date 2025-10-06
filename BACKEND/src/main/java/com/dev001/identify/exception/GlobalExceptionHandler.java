@@ -6,6 +6,7 @@ import java.util.Objects;
 import jakarta.validation.ConstraintViolation;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,9 +21,19 @@ public class GlobalExceptionHandler {
     private static final String MIN_ATTRIBUTE = "min";
     private static final String MAX_ATTRIBUTE = "max";
 
-    @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> handleException(Exception exception) {
-        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+    //    @ExceptionHandler(value = Exception.class)
+    //    ResponseEntity<ApiResponse> handleException(Exception exception) {
+    //        ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
+    //        ApiResponse apiResponse = ApiResponse.builder()
+    //                .code(errorCode.getCode())
+    //                .message(errorCode.getMessage())
+    //                .build();
+    //        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+    //    }
+    // this is for catch exception from the usernamepasswordauthenticationprovider
+    @ExceptionHandler(value = BadCredentialsException.class)
+    ResponseEntity<ApiResponse> handleBadCredential(Exception exception) {
+        ErrorCode errorCode = ErrorCode.USERNAME_OR_PASSWORD_INCORECT;
         ApiResponse apiResponse = ApiResponse.builder()
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())

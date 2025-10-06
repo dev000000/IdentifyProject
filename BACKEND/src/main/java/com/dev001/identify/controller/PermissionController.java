@@ -2,7 +2,6 @@ package com.dev001.identify.controller;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import com.dev001.identify.dto.request.PermissionRequest;
@@ -10,6 +9,7 @@ import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.dto.response.PermissionResponse;
 import com.dev001.identify.service.PermissionService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,7 +24,7 @@ public class PermissionController {
     public ApiResponse<List<PermissionResponse>> getPermissions() {
         return ApiResponse.<List<PermissionResponse>>builder()
                 .code(1000)
-                .data(permissionService.getAllPermissions())
+                .result(permissionService.getAllPermissions())
                 .build();
     }
 
@@ -32,7 +32,7 @@ public class PermissionController {
     public ApiResponse<PermissionResponse> createPermission(@RequestBody PermissionRequest request) {
         return ApiResponse.<PermissionResponse>builder()
                 .code(1000)
-                .data(permissionService.createPermission(request))
+                .result(permissionService.createPermission(request))
                 .build();
     }
 

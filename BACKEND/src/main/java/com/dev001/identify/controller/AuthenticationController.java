@@ -1,20 +1,16 @@
 package com.dev001.identify.controller;
 
-import java.text.ParseException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import com.dev001.identify.dto.request.AuthenticationRequest;
-import com.dev001.identify.dto.request.IntrospectRequest;
-import com.dev001.identify.dto.request.LogoutRequest;
-import com.dev001.identify.dto.request.RefreshTokenRequest;
-import com.dev001.identify.dto.response.ApiResponse;
-import com.dev001.identify.dto.response.AuthenticationResponse;
-import com.dev001.identify.dto.response.IntrospectResponse;
+import com.dev001.identify.dto.request.*;
+import com.dev001.identify.dto.response.*;
 import com.dev001.identify.service.AuthenticationService;
-import com.nimbusds.jose.JOSEException;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,43 +19,89 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController {
 
-
     private final AuthenticationService authenticationService;
 
-    @PostMapping("/token")
-    public ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
+    // CASE 1 : RETURN JSON FOR STORING IN LOCAL STORAGE
+    //    @PostMapping("/login")
+    //    public ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
+    //
+    //        AuthenticationResponse response = authenticationService.authenticate(request);
+    //        return ApiResponse.<AuthenticationResponse>builder()
+    //                .code(1000)
+    //                .result(response)
+    //                .build();
+    //    }
+    // CASE 2 : USE HTTP ONLY COOKIE
+    @PostMapping("/login")
+    public ApiResponse<AuthenticationResponse> login(
+            @RequestBody AuthenticationRequest request, HttpServletResponse response) {
 
-        AuthenticationResponse response = authenticationService.authenticate(request);
+        AuthenticationResponse authResponse = authenticationService.authenticate(request, response);
         return ApiResponse.<AuthenticationResponse>builder()
                 .code(1000)
-                .data(response)
+                .result(authResponse)
                 .build();
     }
+    // CASE 1 : RETURN JSON FOR STORING IN LOCAL STORAGE
+    //    @PostMapping("/register")
+    //    public ApiResponse<RegisterResponse> register(@RequestBody @Valid RegisterRequest request) {
+    //
+    //        RegisterResponse response = authenticationService.register(request);
+    //        return ApiResponse.<RegisterResponse>builder()
+    //                .code(1000)
+    //                .result(response)
+    //                .build();
+    //    }
+    // CASE 2 : USE HTTP ONLY COOKIE
+    @PostMapping("/register")
+    public ApiResponse<RegisterResponse> register(
+            @RequestBody @Valid RegisterRequest request, HttpServletResponse response) {
 
-    @PostMapping("/introspect")
-    public ApiResponse<IntrospectResponse> login(@RequestBody IntrospectRequest request)
-            throws ParseException, JOSEException {
-
-        IntrospectResponse response = authenticationService.introspect(request);
-        return ApiResponse.<IntrospectResponse>builder()
+        RegisterResponse RegisResponse = authenticationService.register(request, response);
+        return ApiResponse.<RegisterResponse>builder()
                 .code(1000)
-                .data(response)
+                .result(RegisResponse)
                 .build();
     }
 
-    @PostMapping("/logout")
-    public ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
-        authenticationService.logOut(request);
+    // CASE 1 : RETURN JSON FOR STORING IN LOCAL STORAGE
+    //    @PostMapping("/refresh-token")
+    //    public ApiResponse<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest request)
+    //            {
+    //        RefreshTokenResponse response = authenticationService.refreshToken(request);
+    //        return ApiResponse.<RefreshTokenResponse>builder()
+    //                .code(1000)
+    //                .result(response)
+    //                .build();
+    //    }
+    // CASE 2 : USE HTTP ONLY COOKIE
+    @PostMapping("/refresh-token")
+    public ApiResponse<?> refreshTokenH(HttpServletRequest request, HttpServletResponse response) {
+        authenticationService.refreshToken(request, response);
         return ApiResponse.<Void>builder().code(1000).build();
     }
 
-    @PostMapping("/refresh-token")
-    public ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshTokenRequest request)
-            throws ParseException, JOSEException {
-        AuthenticationResponse response = authenticationService.refreshToken(request);
-        return ApiResponse.<AuthenticationResponse>builder()
-                .code(1000)
-                .data(response)
-                .build();
-    }
+    // this section is for oauth2
+
+    //    @PostMapping("/introspect")
+    //    public ApiResponse<IntrospectResponse> login(@RequestBody IntrospectRequest request)
+    //            throws ParseException, JOSEException {
+    //
+    //        IntrospectResponse response = authenticationService.introspect(request);
+    //        return ApiResponse.<IntrospectResponse>builder()
+    //                .code(1000)
+    //                .result(response)
+    //                .build();
+    //    }
+    //
+    //
+    //    @PostMapping("/refresh-token")
+    //    public ApiResponse<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest request)
+    //            throws ParseException, JOSEException {
+    //        RefreshTokenResponse response = authenticationService.refreshToken(request);
+    //        return ApiResponse.<RefreshTokenResponse>builder()
+    //                .code(1000)
+    //                .result(response)
+    //                .build();
+    //    }
 }

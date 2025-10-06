@@ -2,7 +2,6 @@ package com.dev001.identify.controller;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import com.dev001.identify.dto.request.RoleRequest;
@@ -10,6 +9,7 @@ import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.dto.response.RoleResponse;
 import com.dev001.identify.service.RoleService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,7 +24,7 @@ public class RoleController {
     public ApiResponse<List<RoleResponse>> getRoles() {
         return ApiResponse.<List<RoleResponse>>builder()
                 .code(1000)
-                .data(roleService.getAllRoles())
+                .result(roleService.getAllRoles())
                 .build();
     }
 
@@ -32,7 +32,7 @@ public class RoleController {
     public ApiResponse<RoleResponse> createRole(@RequestBody RoleRequest request) {
         return ApiResponse.<RoleResponse>builder()
                 .code(1000)
-                .data(roleService.createRole(request))
+                .result(roleService.createRole(request))
                 .build();
     }
 

@@ -7,5 +7,5 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RefreshTokenRequest {
-    String token;
+    String refreshToken;
 }

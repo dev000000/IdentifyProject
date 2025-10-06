@@ -1,9 +1,8 @@
 package com.dev001.identify.dto.response;
 
 import java.time.LocalDate;
-import java.util.Set;
 
-import com.dev001.identify.entity.role.Role;
+import com.dev001.identify.enums.Role;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,11 +14,14 @@ import lombok.experimental.FieldDefaults;
 @Builder
 public class UserResponse {
     String id;
-    String userName;
-    String passWord;
+    String username;
+    String password;
     String firstName;
     String lastName;
     LocalDate dob;
 
-    Set<Role> roles;
+    //    Set<Role> roles;
+    Role role;
+    //    this for test
+    String token;
 }

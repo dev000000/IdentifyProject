@@ -2,19 +2,15 @@ package com.dev001.identify.controller;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import com.dev001.identify.dto.request.UserCreationRequest;
 import com.dev001.identify.dto.request.UserUpdateRequest;
 import com.dev001.identify.dto.response.ApiResponse;
 import com.dev001.identify.dto.response.UserResponse;
 import com.dev001.identify.service.UserService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -36,25 +32,24 @@ public class UserController {
         //      spotless:off
                 return ApiResponse.<List<UserResponse>>builder()
                             .code(1000)
-                            .data(userService.getAllUsers())
+                            .result(userService.getAllUsers())
                         .build();
         //      spotless:on
     }
 
-    @PostMapping
-    public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-        log.info("User Controller . createUser");
-        return ApiResponse.<UserResponse>builder()
-                .code(1000)
-                .data(userService.createUser(request))
-                .build();
-    }
+    //    @PostMapping
+    //    public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
+    //        return ApiResponse.<UserResponse>builder()
+    //                .code(1000)
+    //                .result(userService.createUser(request))
+    //                .build();
+    //    }
 
     @GetMapping("/{id}")
     public ApiResponse<UserResponse> getUser(@PathVariable String id) {
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
-                .data(userService.getUserDetail(id))
+                .result(userService.getUserDetail(id))
                 .build();
     }
 
@@ -62,7 +57,7 @@ public class UserController {
     public ApiResponse<UserResponse> getMyProfile() {
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
-                .data(userService.getMyProfile())
+                .result(userService.getMyProfile())
                 .build();
     }
 
@@ -70,7 +65,7 @@ public class UserController {
     public ApiResponse<UserResponse> updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .code(1000)
-                .data(userService.updateUser(id, request))
+                .result(userService.updateUser(id, request))
                 .build();
     }
 

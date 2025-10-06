@@ -1,0 +1,33 @@
+#profile dev
+server:
+  port: 8080
+spring:
+  application:
+    name: identify
+  datasource:
+    # 1. if dont have environment variable DBMS_CONNECTION , set default value is jdbc:mysql://localhost:3306/identifyDB
+    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/identifyDB}
+    username: ${DBMS_USERNAME:root}
+    password: ${DBMS_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database: mysql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+application:
+  security:
+    jwt:
+      secret-key: "${SECRET_KEY:7RNUqJlIkY3IuGxPKbC7GoGDW40BdtEviJxdjqXSCqrptnnqC98+hyRUB87BxzQG}"
+      expiration: 15000
+      refresh-token:
+        expiration: 30000
+    cookie:
+      secure: true
+      same-site: Lax
+
