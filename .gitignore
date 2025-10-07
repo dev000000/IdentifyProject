@@ -1,4 +1,11 @@
 ############################
+# Environment files
+############################
+
+*.env
+!.env.example  #push file example
+
+############################
 # Java / Spring Boot backend
 ############################
 /identify/BACKEND/target/
