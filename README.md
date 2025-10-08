@@ -9,6 +9,28 @@
 
 ---
 
+## 📚 Table of Contents
+
+- [📌 Overview](#-overview)
+- [✨ Features](#-features)
+  - [Backend](#backend)
+  - [Frontend](#frontend)
+- [🧰 Tech Stack](#-tech-stack)
+- [🗂️ Repository Structure](#️-repository-structure)
+- [🚀 Quickstart](#-quickstart)
+  - [⚙️ Option 1: Run Everything Locally](#️-option-1-run-everything-locally)
+    - [🧩 Prerequisites](#-prerequisites)
+    - [🧠 1. Frontend Setup](#-1-frontend-setup)
+    - [🧱 2. Backend Setup](#-2-backend-setup)
+  - [🐳 Option 2: Run Backend with Docker Compose (Frontend Locally)](#-option-2-run-backend-with-docker-compose-frontend-locally)
+    - [🧩 Prerequisites](#-prerequisites-1)
+    - [🔧 Steps](#-steps)
+    - [🧩 Frontend (Run Locally)](#-frontend-run-locally)
+  - [🧰 Quick Reference](#-quick-reference)
+  - [🧾 Tips](#-tips)
+- [🌐 Deployment (AWS EC2 quick notes)](#-deployment-aws-ec2-quick-notes)
+- [🔗 API (sample)](#-api-sample)
+- [🖥️ Frontend Notes](#️-frontend-notes)
 ## 📌 Overview
 
 This project is primarily **for learning** and **hands‑on practice**. The goal is to build a realistic backend for an authentication/authorization flow and to rehearse essential frontend skills.
@@ -83,187 +105,188 @@ IDENTIFY/
 ├─ .gitignore                        # Ignored files and folders
 
 ```
-
 ---
 
-## 🚀 Quick Start
+# 🚀 Quickstart
 
-You can run backend with **Docker Compose** and run frontend **locally** or run everything (backend + frontend) **locally** 
+You can run this project in two ways:
+1. Run everything locally (frontend + backend).
+2. Run backend via Docker Compose and frontend locally (recommended – since this project focuses on backend development).
 
-### Option A) Run with Docker Compose (recommended for first try)
+## ⚙️ Option 1: Run Everything Locally
 
-1. Create an **.env** file (project root) for compose:
+### 🧩 Prerequisites
 
-```env
-# --- Backend ---
-APP_PROFILE=dev
-JWT_SECRET=change_me_super_secret
-ACCESS_TOKEN_TTL_MS=900000      # 15 minutes
-REFRESH_TOKEN_TTL_MS=1209600000 # 14 days
-CORS_ALLOWED_ORIGINS=http://localhost:5173
-DB_HOST=mysql
-DB_PORT=3306
-DB_NAME=identify
-DB_USER=root
-DB_PASSWORD=root
+| Component   | Recommended Version | Notes                                      |
+|-------------|---------------------|--------------------------------------------|
+| JDK         | 17+                 | Required for Spring Boot backend           |
+| Maven       | 3.9+                | Build backend                              |
+| Node.js     | 20+                 | Run frontend                               |
+| Yarn / npm  | latest              | Install frontend dependencies              |
+| MySQL       | 8.0+                | You can use a Docker container like mysql:8.0.43-debian |
 
-# --- Frontend ---
-VITE_API_BASE_URL=http://localhost:8080
-```
+### 🧠 1. Frontend Setup
 
-2. Use the provided Compose file:
-
-```yaml
-# deploy/docker-compose.yml
-version: "3.9"
-services:
-  mysql:
-    image: mysql:8.0.43-debian
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  backend:
-    build:
-      context: ../BACKEND
-    environment:
-      SPRING_PROFILES_ACTIVE: ${APP_PROFILE}
-      APPLICATION_SECURITY_JWT_SECRET: ${JWT_SECRET}
-      APPLICATION_SECURITY_JWT_ACCESS_EXPIRATION: ${ACCESS_TOKEN_TTL_MS}
-      APPLICATION_SECURITY_JWT_REFRESH_EXPIRATION: ${REFRESH_TOKEN_TTL_MS}
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:${DB_PORT}/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
-    depends_on:
-      mysql:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
-
-  frontend:
-    build:
-      context: ../FRONTEND
-    environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
-    ports:
-      - "5173:5173"
-    command: ["npm", "run", "dev", "--", "--host"]
-    depends_on:
-      - backend
-
-volumes:
-  mysql_data:
-```
-
-3. Run:
-
-```bash
-cd deploy
-docker compose up --build
-```
-
-* Backend available at: `http://localhost:8080`
-* Frontend available at: `http://localhost:5173`
-
-### Option B) Run locally without Docker
-
-**Prerequisites**
-
-* JDK 17+, Maven 3.9+
-* Node 20+, pnpm/npm/yarn
-* MySQL 8.x (create DB `identify`)
-
-**1) Backend**
-
-```bash
-cd BACKEND
-# optional
-mvn spotless:apply
-mvn -Pdev clean verify
-java -jar target/*-SNAPSHOT.jar \
-  --spring.profiles.active=dev \
-  --spring.datasource.url=jdbc:mysql://localhost:3306/identify?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC \
-  --spring.datasource.username=root \
-  --spring.datasource.password=root \
-  --application.security.jwt.secret=change_me_super_secret \
-  --application.security.jwt.access-expiration=900000 \
-  --application.security.jwt.refresh-expiration=1209600000 \
-  --cors.allowed-origins=http://localhost:5173
-```
-
-**2) Frontend**
+**Step 1.** Navigate to the frontend directory:
 
 ```bash
 cd FRONTEND
-cp .env.example .env # edit VITE_API_BASE_URL if needed
-npm install
-npm run dev -- --host
 ```
+
+**Step 2.** Install dependencies:
+
+```bash
+yarn install     # or npm install
+```
+
+**Step 3.** Create a `.env` file (based on `.env.example`):
+
+```
+VITE_API_ENDPOINT=http://localhost:8080
+VITE_AUTH_MODE=JWT
+```
+
+⚠️ Update `VITE_API_ENDPOINT` if your backend runs on a different host or port.
+
+**Step 4.** Start the development server:
+
+```bash
+yarn dev --host
+```
+
+✅ Frontend will be available at http://localhost:5173
+
+### 🧱 2. Backend Setup
+
+#### 🗄 MySQL Database
+
+**Step 1.** Start MySQL:  
+You can run it via Docker:
+
+```bash
+docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:8.0.43-debian
+```
+
+or use a local MySQL installation.
+
+**Step 2.** Connect with MySQL Workbench or CLI (localhost:3306, user root), then create the database:
+
+```sql
+CREATE DATABASE identifyDB;
+```
+
+#### 🧩 Spring Boot Application
+
+**Step 3.** Navigate to the backend directory:
+
+```bash
+cd BACKEND
+```
+
+**Step 4.** Create a `.env` file (based on `.env.example`):
+
+```
+SPRING_PROFILES_ACTIVE=dev
+SERVER_PORT=8080
+DBMS_CONNECTION=jdbc:mysql://localhost:3306/identifyDB
+DBMS_USERNAME=root
+DBMS_PASSWORD=root
+SECRET_KEY="7RNUqJlIkY3IuGxPKbC7GoGDW40BdtEviJxdjqXSCqrptnnqC98+hyRUB87BxzQG"
+JWT_ACCESS_EXP_MS=900000
+JWT_REFRESH_EXP_MS=1209600000
+```
+
+**Step 5.** In your `SecurityConfig.java`, make sure CORS allows your frontend origin:
+
+```java
+corsConfiguration.addAllowedOrigin("http://localhost:5173");
+```
+
+**Step 6.** Build and run the backend:
+
+```bash
+mvn clean package -DskipTests
+java -jar target/*-SNAPSHOT.jar
+```
+
+✅ Backend will be available at http://localhost:8080
+
+## 🐳 Option 2: Run Backend with Docker Compose (Frontend Locally)
+
+### 🧩 Prerequisites
+
+- Docker Desktop or Docker Engine ≥ v27
+- Docker Compose ≥ v2.20
+
+### 🔧 Steps
+
+**Step 1.** Create a `.env` file inside the `BACKEND` folder (based on `.env.example`):
+
+```
+SPRING_PROFILES_ACTIVE=dev
+SERVER_PORT=8080
+DBMS_CONNECTION=jdbc:mysql://mysql:3306/identifyDB
+DBMS_USERNAME=root
+DBMS_PASSWORD=root
+SECRET_KEY="7RNUqJlIkY3IuGxPKbC7GoGDW40BdtEviJxdjqXSCqrptnnqC98+hyRUB87BxzQG"
+JWT_ACCESS_EXP_MS=900000
+JWT_REFRESH_EXP_MS=1209600000
+```
+
+**Step 2.** Navigate to the `deploy` folder:
+
+```bash
+cd deploy
+```
+
+**Step 3.** Run Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+Docker will automatically:
+
+- Create a MySQL container (mysql:8.0.43-debian)
+- Start identify-service (Spring Boot backend)
+- Create a private network and volume (dev001-network, dbdata)
+
+✅ **Once started:**
+
+- Backend → http://localhost:8080
+- MySQL → localhost:3306
+
+### 🧩 Frontend (Run Locally)
+
+Repeat the frontend setup steps from Option 1 (Steps 1–4).  
+Ensure your `.env` points to the backend API:
+
+```
+VITE_API_ENDPOINT=http://localhost:8080
+```
+
+## 🧰 Quick Reference
+
+| Service              | URL                  | Notes                          |
+|----------------------|----------------------|--------------------------------|
+| Frontend (Vite)      | http://localhost:5173 | Local dev mode                 |
+| Backend (Spring Boot)| http://localhost:8080 | API server                     |
+| MySQL                | localhost:3306       | Accessible via Workbench       |
+| Docker Network       | dev001-network       | Shared between backend & DB    |
+
+## 🧾 Tips
+
+- Use `docker compose logs -f identify-service` to view backend logs.
+- After updating `.env`, rebuild with `docker compose up -d --build`.
+- The backend waits until MySQL passes its health check before starting.
+
+
 
 ---
-
-## ⚙️ Configuration
-
-### Backend – `application.yml`
-
-```yaml
-spring:
-  datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate.format_sql: true
-
-application:
-  security:
-    jwt:
-      secret: ${APPLICATION_SECURITY_JWT_SECRET}
-      access-expiration: ${APPLICATION_SECURITY_JWT_ACCESS_EXPIRATION:900000}
-      refresh-expiration: ${APPLICATION_SECURITY_JWT_REFRESH_EXPIRATION:1209600000}
-    cookie:
-      secure: false
-      same-site: Lax
-cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
-```
-
-> **Note**: If you store refresh token in HttpOnly cookie, ensure `cookie.secure=true` when using HTTPS and set `SameSite=None` for cross‑site.
-
-### Frontend – `.env`
-
-```env
-VITE_API_BASE_URL=http://localhost:8080
-```
-
-Usage in code:
-
-```ts
-// FRONTEND/src/lib/http.ts
-import axios from "axios";
-export const http = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  withCredentials: true, // if using cookies
-});
-```
-
 ---
 
 ## 🌐 Deployment (AWS EC2 quick notes)
-//EDIT lai
+
 1. Provision an Ubuntu EC2 (t3.micro is fine for demo).
 2. Install Docker & Docker Compose.
 3. Copy project, set `.env` (strong secrets), open security group ports **22**, **80/443** (or **8080/5173** for demo).
