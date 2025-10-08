@@ -251,7 +251,7 @@ export const http = axios.create({
 ---
 
 ## 🌐 Deployment (AWS EC2 quick notes)
-
+//EDIT lai
 1. Provision an Ubuntu EC2 (t3.micro is fine for demo).
 2. Install Docker & Docker Compose.
 3. Copy project, set `.env` (strong secrets), open security group ports **22**, **80/443** (or **8080/5173** for demo).
@@ -264,17 +264,16 @@ export const http = axios.create({
 
 ```
 POST   /api/v1/auth/register     # create account
-POST   /api/v1/auth/login        # return access + refresh
-POST   /api/v1/auth/refresh      # rotate access token
+POST   /api/v1/auth/login        # return access + refresh token
+POST   /api/v1/auth/refresh-token      # rotate access token
 POST   /api/v1/auth/logout       # revoke refresh
-GET    /api/v1/users/me          # current user (protected)
 ```
 
 ---
 
 ## 🖥️ Frontend Notes
 
-* **Axios interceptor**: attach `Authorization: Bearer <access>`, on 401 → queue & refresh once.
+* **Axios interceptor**: attach `Authorization: Bearer <access>`, on 410 (GONE) → queue & refresh once.
 * **Error Boundary**: catch render/runtime errors → show fallback with retry.
 * **Cleanup**: cancel pending requests on unmount (`AbortController`).
 
