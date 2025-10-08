@@ -12,6 +12,7 @@
 ## 📚 Table of Contents
 
 - [📌 Overview](#-overview)
+- [📌 Review](#-review)
 - [✨ Features](#-features)
   - [Backend](#backend)
   - [Frontend](#frontend)
@@ -28,10 +29,10 @@
     - [🧩 Frontend (Run Locally)](#-frontend-run-locally)
   - [🧰 Quick Reference](#-quick-reference)
   - [🧾 Tips](#-tips)
-- [🌐 Deployment (AWS EC2 quick notes)](#-deployment-aws-ec2-quick-notes)
 - [🔗 API (sample)](#-api-sample)
 - [🖥️ Frontend Notes](#️-frontend-notes)
 ## 📌 Overview
+
 
 This project is primarily **for learning** and **hands‑on practice**. The goal is to build a realistic backend for an authentication/authorization flow and to rehearse essential frontend skills.
 
@@ -40,6 +41,42 @@ This project is primarily **for learning** and **hands‑on practice**. The goal
 * Infra/Quality: Docker, AWS EC2 deployment, **Spotless** code format, **JaCoCo** coverage, **Testcontainers** for integration tests, **SonarQube** for static analysis, and **JMeter** for basic load testing.
 
 > ⚠️ Since this is a learning project, some trade‑offs are intentional to demonstrate patterns and alternatives.
+
+---
+---
+## 📌 Review
+> 📄 You can view the complete list of issues here: [**View on GitHub**](https://github.com/dev000000/IdentifyProject/issues)
+---
+| Issues                                                                    | Notes                                                                                                                                                                           |
+|---------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Dev001 – Manager Exception, Normalize Response #1                         | Learned to `normalize API responses` with consistent structure and implement centralized `exception handling` for better readability and frontend parsing.                      |
+| Dev001 – use MapStruct in project #3                                      | Explored `MapStruct` library for fast and type-safe object mapping between DTOs and entities, reducing boilerplate getter/setter conversions.                                   |
+| Dev001 – use BCrypt #5                                                    | Implemented `password hashing` using `BCrypt` before saving to the database, improving security for authentication system.                                                      |
+| Dev001 – Issue and verify JWT token #7                                    | Learned how to `generate, sign, and verify JWT tokens` to manage authentication and secure API endpoints effectively.                                                           |
+| Dev001 – Spring Security Part 1 (config endpoint) #9                      | `Configured endpoints and authentication` entry points for Spring Security, setting up public/private routes and secure filters.                                                |
+| Dev001 – Spring Security Part 2 (hasRole / hasAuthority) #11              | Practiced role-based authorization using `hasRole()` and `hasAuthority()` annotations in Spring Security.                                                                        |
+| Dev001 – Spring Security Part 3 (Pre/Post Authorize) #13                  | Learned method-level security with `@PreAuthorize` and `@PostAuthorize` for fine-grained access control in service layers.                                                      |
+| Dev001 – Handle Exception with flex http code #17                         | Enhanced exception handling to return `flexible HTTP status codes` and meaningful error messages for frontend clients.                                                          |
+| Dev001 – Role-based authorization , annotation @ManyToMany #19            | Implemented `@ManyToMany` mapping between users and roles; applied `role-based authorization` for fine-grained access.                                                          |
+| Dev001 – Validation with custom annotation #21                            | Created `custom validation annotations` and handled constraint messages for cleaner data validation flow.                                                                       |
+| Dev001 – Feature Log out with JWT token #23                               | Implemented `logout feature` by invalidating refresh tokens and handling token blacklisting logic.                                                                              |
+| Dev001 – Refresh JWT token #25                                            | Added `refresh-token endpoint` to issue new access tokens and improve user experience without frequent re-login.                                                                |
+| Dev001 – Unit Test #28                                                    | Practiced writing basic `Unit Tests` for controllers, services, and repositories using `JUnit 5` following Spring Boot testing architecture.                                    |
+| Dev001 – Integration Test with JaCoCo & TestContainers #31                | Integrated `TestContainers` for DB testing and `JaCoCo` for `code coverage reports` to ensure test quality and maintainability.                                                 |
+| Dev001 – Format code with Spotless #33                                    | Applied `Spotless plugin` to format code automatically and maintain consistent code style across the backend project.                                                            |
+| Dev001 – Learn about SonarLint and SonarQube #35                          | Explored `SonarLint` for local static analysis and `SonarQube` for continuous code quality inspection and maintainability metrics.                                              |
+| Dev001 – Build FrontEnd for Application (ReactJS) #39                     | Developed a lightweight `ReactJS frontend` for Identify-Service to test authentication and token flows visually.                                                                |
+| Dev001 – Restructure project: backend + frontend folders #37              | Refactored repository structure into clear `BACKEND` and `FRONTEND` modules for cleaner project organization.                                                                   |
+| Dev001 – Error Boundary , FallbackUI #42                                  | Implemented React `ErrorBoundary` and `Fallback UI` components to handle rendering errors gracefully on the client side.                                                        |
+| Dev001 – Complete Project (feature Login , Logout , Register) #44         | Completed core `authentication flow`: register, login, logout with JWT and refresh-token handling end-to-end.                                                                  |
+| Dev001 – Fix issue Refresh token many time #46                            | Fixed `Axios interceptor logic` to prevent `multiple refresh-token calls` when several parallel API requests fail due to expired access token.                                 |
+| Dev001 – use HttpOnly cookie for Refresh, Access Token #48                | Replaced localStorage token storage with `HttpOnly cookies` for better security against XSS and token theft.                                                                    |
+| Dev001 – Unique Field in JPA, concurrent request #50                      | Fixed `concurrency` bug during registration by enforcing unique DB constraints and handling duplicate username exceptions gracefully.                                            |
+| Dev001 – Learn about profiles and environment variables #52               | Studied `Spring Profiles`, `environment variables`, and how to configure dynamic values for multiple deployment environments.                                                   |
+| Dev001 – Build Project #54                                                | Learned different Spring Boot build formats (Fat JAR, WAR, Native, Docker Image) and chose Fat `JAR` for deployment simplicity.                                                 |
+| Dev001 – Using Docker #56                                                 | Created `Dockerfile`, built image, ran and published image to `Docker Hub`. Fixed build/run issues during containerization process.                                             |
+| Dev001 – Deploy to EC2 (AWS) #58                                          | Learned `AWS EC2` setup (Ubuntu, Docker, Termius) and deployed Identify-Service container successfully on cloud instance.                                                       |
+| Dev001 – Refactor file structure & dynamic env setup (Spring Profiles) #62| Refactored project structure, rebuilt image (v0.0.2) using `Docker Compose`, applied `.env` configuration for faster setup and deployment across profiles.                      |
 
 ---
 
@@ -281,17 +318,6 @@ VITE_API_ENDPOINT=http://localhost:8080
 - The backend waits until MySQL passes its health check before starting.
 
 
-
----
----
-
-## 🌐 Deployment (AWS EC2 quick notes)
-
-1. Provision an Ubuntu EC2 (t3.micro is fine for demo).
-2. Install Docker & Docker Compose.
-3. Copy project, set `.env` (strong secrets), open security group ports **22**, **80/443** (or **8080/5173** for demo).
-4. Run `docker compose -f deploy/docker-compose.yml up -d --build`.
-5. For HTTPS, put Nginx/Traefik in front and set cookie `Secure=true` + `SameSite=None`.
 
 ---
 
