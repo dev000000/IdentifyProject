@@ -54,29 +54,41 @@ This project is primarily **for learning** and **hands‑on practice**. The goal
 ## 🗂️ Repository Structure
 
 ```
-.
-├─ BACKEND/                    # Spring Boot 3 application
-│  ├─ src/main/java
-│  ├─ src/test/java            # Unit & integration tests (Testcontainers)
-│  ├─ src/test/resources
-│  ├─ pom.xml
-│  └─ Dockerfile
-├─ FRONTEND/                   # React + Vite + MUI app
+IDENTIFY/
+├─ BACKEND/                          # Spring Boot 3.x backend
 │  ├─ src/
-│  ├─ index.html
-│  ├─ package.json
-│  └─ vite.config.ts
-├─ deploy/                     # docker-compose, configs for local/EC2
-│  ├─ docker-compose.yml
-│  └─ sonar-project.properties
-└─ README.md
+│  │  ├─ main/java/                  # Source code
+│  │  ├─ main/resources/             # Config files (application.yml, etc.)
+│  │  ├─ test/java/                  # Unit & integration tests (Testcontainers, JUnit5)
+│  │  └─ test/resources/
+│  ├─ target/                        # Build output (ignored by Git)
+│  ├─ .env                           # Environment variables for backend
+│  ├─ .env.example                   # Template for environment configuration
+│  ├─ Dockerfile                     # Backend Docker build file
+│  ├─ pom.xml                        # Maven dependencies & plugins
+│
+├─ FRONTEND/                         # React + Vite + Material UI frontend
+│  ├─ public/                        # Static assets (favicon, etc.)
+│  ├─ src/                           # React components, routes, hooks, etc.
+│  ├─ .env                           # Environment variables for frontend
+│  ├─ .env.example                   # Example config for frontend
+│  ├─ index.html                     # Main HTML entry
+│  ├─ package.json                   # Frontend dependencies
+│  ├─ yarn.lock                      # Yarn lock file
+│  
+├─ deploy/                           # Deployment configs (local, EC2, etc.)
+│  ├─ docker-compose.yml             # Multi-container orchestration (MySQL, backend)
+│  
+├─ .gitattributes                    # Git attributes
+├─ .gitignore                        # Ignored files and folders
+
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-You can run everything with **Docker Compose** or run **locally** (backend + frontend).
+You can run backend with **Docker Compose** and run frontend **locally** or run everything (backend + frontend) **locally** 
 
 ### Option A) Run with Docker Compose (recommended for first try)
 
